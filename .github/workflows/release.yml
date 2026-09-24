@@ -83,9 +83,9 @@ jobs:
           name="zapfast-${GITHUB_REF_NAME}-${{ matrix.target }}"
           mkdir -p "dist/$name"
           if [ "${{ runner.os }}" = "Windows" ]; then
-            cp "target/${{ matrix.target }}/release/zapfast.exe" "dist/$name/"
+            cp "target/${{ matrix.target }}/release/zapzapfast.exe" "dist/$name/"
           else
-            cp "target/${{ matrix.target }}/release/zapfast" "dist/$name/"
+            cp "target/${{ matrix.target }}/release/zapzapfast" "dist/$name/"
           fi
           cp README.md LICENSE THIRD-PARTY-NOTICES.md packaging/zapfast-portable.txt "dist/$name/"
           if [ "${{ runner.os }}" = "Linux" ]; then
@@ -166,8 +166,8 @@ jobs:
         run: |
           mkdir -p universal
           lipo -create \
-            target/aarch64-apple-darwin/release/zapfast \
-            target/x86_64-apple-darwin/release/zapfast \
+            target/aarch64-apple-darwin/release/zapzapfast \
+            target/x86_64-apple-darwin/release/zapzapfast \
             -output universal/zapfast
 
       - uses: ruby/setup-ruby@v1

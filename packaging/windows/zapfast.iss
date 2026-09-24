@@ -28,12 +28,13 @@
   #define InnoArch "x64compatible"
 #endif
 
-#define AppName "ZapFast"
-#define AppExeName "zapfast.exe"
+#define AppName "ZapZapFast"
+#define AppExeName "zapzapfast.exe"
 
 [Setup]
 ; Never change: this is how Windows tells an update from a new program.
-AppId={{F2512314-384A-4002-9933-AB840FD01639}
+; ZapZapFast: its own AppId, so it installs beside ZapFast.
+AppId={{D43C6357-0C3A-4C48-8A47-FAA2C1B26EF3}
 AppName={#AppName}
 AppVersion={#Version}
 AppVerName={#AppName} {#Version}
@@ -50,7 +51,7 @@ ArchitecturesInstallIn64BitMode={#InnoArch}
 MinVersion=10.0
 LicenseFile=..\..\LICENSE
 OutputDir={#OutputDir}
-OutputBaseFilename=zapfast-v{#Version}-{#Arch}-pc-windows-msvc-setup
+OutputBaseFilename=zapzapfast-v{#Version}-{#Arch}-pc-windows-msvc-setup
 SetupIconFile=zapfast.ico
 Compression=lzma2/max
 SolidCompression=yes
@@ -79,8 +80,8 @@ Type: files; Name: "{autoprograms}\FastsApp.lnk"
 Type: files; Name: "{autodesktop}\FastsApp.lnk"
 
 [Icons]
-Name: "{autoprograms}\{#AppName}"; Filename: "{app}\{#AppExeName}"; AppUserModelID: "me.paolino.zapfast"
-Name: "{autodesktop}\{#AppName}"; Filename: "{app}\{#AppExeName}"; Tasks: desktopicon; AppUserModelID: "me.paolino.zapfast"
+Name: "{autoprograms}\{#AppName}"; Filename: "{app}\{#AppExeName}"; AppUserModelID: "me.paolino.zapzapfast"
+Name: "{autodesktop}\{#AppName}"; Filename: "{app}\{#AppExeName}"; Tasks: desktopicon; AppUserModelID: "me.paolino.zapzapfast"
 
 [Run]
 Filename: "{app}\{#AppExeName}"; Description: "Launch {#AppName}"; Flags: nowait postinstall skipifsilent
