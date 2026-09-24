@@ -1,0 +1,31 @@
+# Hooks the fork keeps in upstream files. One per line: <file>|<fixed text>.
+# scripts/fork-check.sh fails when a line's text is missing from its file, which
+# is what a rebase that took upstream's side of a conflict looks like.
+Cargo.toml|name = "zapzapfast"
+Cargo.toml|repository = "https://github.com/camilo-ojedav/zapzapfast"
+build.rs|"ProductName", "ZapZapFast"
+src/lib.rs|pub mod fork;
+src/main.rs|zapfast::fork::accounts::Accounts::new(app, &waker, demo)
+src/main.rs|app: Option<zapfast::fork::accounts::Accounts>,
+src/main.rs|zapfast::fork::DISPLAY_NAME,
+src/main.rs|zapfast::fork::APP_ID.to_owned()
+src/main.rs|.is_some_and(|app| app.hides_to_tray())
+src/paths.rs|Self::of(crate::fork::APP_ID)
+src/paths.rs|for name in crate::fork::PREVIOUS_NAMES {
+src/archive/encryption.rs|.build(crate::fork::KEYRING_SERVICE, &identity, None)
+src/single_instance.rs|crate::fork::LEGACY_INSTANCE_PORT && legacy_instance_answers(verb)
+src/single_instance.rs|if crate::fork::LEGACY_INSTANCE_PORT {
+src/updates.rs|crate::fork::LATEST_RELEASE_URL
+src/updates/transfer.rs|crate::fork::REPOSITORY
+src/autostart.rs|const LABEL: &str = crate::fork::WINDOWS_APP_ID;
+src/autostart.rs|const VALUE: &str = crate::fork::DISPLAY_NAME;
+src/notify.rs|.appname(crate::fork::DISPLAY_NAME)
+src/notify/windows.rs|const APPLICATION_ID: &str = crate::fork::WINDOWS_APP_ID;
+src/notify/badge.rs|crate::fork::APP_ID.to_owned()
+src/tray.rs|crate::fork::APP_ID.into()
+src/tray_native.rs|.with_tooltip(crate::fork::DISPLAY_NAME)
+packaging/windows/zapfast.iss|AppId={{D43C6357-0C3A-4C48-8A47-FAA2C1B26EF3}
+packaging/windows/zapfast.iss|AppUserModelID: "me.paolino.zapzapfast"
+.github/workflows/release.yml|release/zapzapfast.exe
+AGENTS.md|FORK.md
+src/backend/worker.rs|.with_os(crate::fork::DISPLAY_NAME)

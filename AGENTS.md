@@ -1,3 +1,5 @@
+> **ZapZapFast fork:** read `FORK.md` first; where it disagrees with this file, it wins.
+
 # ZapFast agent guide
 
 ZapFast is a small native WhatsApp client: Rust, egui, and the
