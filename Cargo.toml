@@ -1,6 +1,6 @@
 [package]
 name = "zapzapfast"
-version = "0.16.1"
+version = "0.16.2"
 edition = "2024"
 rust-version = "1.98"
 license = "MIT"
@@ -127,19 +127,20 @@ tr = { version = "0.1.11", default-features = false }
 sys-locale = "0.3"
 
 [patch.crates-io]
-# Right-to-left shaping and glyph clusters from crmne/zapfast#144, on top of
+# Right-to-left shaping and glyph clusters from crmne/zapfast#144, and digits
+# shaped left to right in text without right-to-left letters (#184), on top of
 # egui 0.36.1. Every egui crate comes from the same revision so they share one
 # emath and epaint. Drop this once egui releases bidirectional text support.
-ecolor = { git = "https://github.com/crmne/egui", rev = "6147de7b09f255190121e8166cbb083d88cabfb2" }
-eframe = { git = "https://github.com/crmne/egui", rev = "6147de7b09f255190121e8166cbb083d88cabfb2" }
-egui = { git = "https://github.com/crmne/egui", rev = "6147de7b09f255190121e8166cbb083d88cabfb2" }
-egui-wgpu = { git = "https://github.com/crmne/egui", rev = "6147de7b09f255190121e8166cbb083d88cabfb2" }
-egui-winit = { git = "https://github.com/crmne/egui", rev = "6147de7b09f255190121e8166cbb083d88cabfb2" }
-egui_extras = { git = "https://github.com/crmne/egui", rev = "6147de7b09f255190121e8166cbb083d88cabfb2" }
-egui_glow = { git = "https://github.com/crmne/egui", rev = "6147de7b09f255190121e8166cbb083d88cabfb2" }
-emath = { git = "https://github.com/crmne/egui", rev = "6147de7b09f255190121e8166cbb083d88cabfb2" }
-epaint = { git = "https://github.com/crmne/egui", rev = "6147de7b09f255190121e8166cbb083d88cabfb2" }
-epaint_default_fonts = { git = "https://github.com/crmne/egui", rev = "6147de7b09f255190121e8166cbb083d88cabfb2" }
+ecolor = { git = "https://github.com/crmne/egui", rev = "8e5923482f6882a169b5c74ee6b380089f890391" }
+eframe = { git = "https://github.com/crmne/egui", rev = "8e5923482f6882a169b5c74ee6b380089f890391" }
+egui = { git = "https://github.com/crmne/egui", rev = "8e5923482f6882a169b5c74ee6b380089f890391" }
+egui-wgpu = { git = "https://github.com/crmne/egui", rev = "8e5923482f6882a169b5c74ee6b380089f890391" }
+egui-winit = { git = "https://github.com/crmne/egui", rev = "8e5923482f6882a169b5c74ee6b380089f890391" }
+egui_extras = { git = "https://github.com/crmne/egui", rev = "8e5923482f6882a169b5c74ee6b380089f890391" }
+egui_glow = { git = "https://github.com/crmne/egui", rev = "8e5923482f6882a169b5c74ee6b380089f890391" }
+emath = { git = "https://github.com/crmne/egui", rev = "8e5923482f6882a169b5c74ee6b380089f890391" }
+epaint = { git = "https://github.com/crmne/egui", rev = "8e5923482f6882a169b5c74ee6b380089f890391" }
+epaint_default_fonts = { git = "https://github.com/crmne/egui", rev = "8e5923482f6882a169b5c74ee6b380089f890391" }
 # winit 0.30.13 plus Wayland `Occluded` events for the xdg-shell suspended
 # state, so a hidden window stops painting instead of blocking on vsync.
 # Shared with Spotifast and proposed upstream as rust-windowing/winit#4709.

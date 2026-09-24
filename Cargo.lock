@@ -1495,7 +1495,7 @@ dependencies = [
 [[package]]
 name = "ecolor"
 version = "0.36.1"
-source = "git+https://github.com/crmne/egui?rev=6147de7b09f255190121e8166cbb083d88cabfb2#6147de7b09f255190121e8166cbb083d88cabfb2"
+source = "git+https://github.com/crmne/egui?rev=8e5923482f6882a169b5c74ee6b380089f890391#8e5923482f6882a169b5c74ee6b380089f890391"
 dependencies = [
  "bytemuck",
  "emath",
@@ -1505,7 +1505,7 @@ dependencies = [
 [[package]]
 name = "eframe"
 version = "0.36.1"
-source = "git+https://github.com/crmne/egui?rev=6147de7b09f255190121e8166cbb083d88cabfb2#6147de7b09f255190121e8166cbb083d88cabfb2"
+source = "git+https://github.com/crmne/egui?rev=8e5923482f6882a169b5c74ee6b380089f890391#8e5923482f6882a169b5c74ee6b380089f890391"
 dependencies = [
  "ahash",
  "bytemuck",
@@ -1540,7 +1540,7 @@ dependencies = [
 [[package]]
 name = "egui"
 version = "0.36.1"
-source = "git+https://github.com/crmne/egui?rev=6147de7b09f255190121e8166cbb083d88cabfb2#6147de7b09f255190121e8166cbb083d88cabfb2"
+source = "git+https://github.com/crmne/egui?rev=8e5923482f6882a169b5c74ee6b380089f890391#8e5923482f6882a169b5c74ee6b380089f890391"
 dependencies = [
  "accesskit",
  "ahash",
@@ -1561,7 +1561,7 @@ dependencies = [
 [[package]]
 name = "egui-wgpu"
 version = "0.36.1"
-source = "git+https://github.com/crmne/egui?rev=6147de7b09f255190121e8166cbb083d88cabfb2#6147de7b09f255190121e8166cbb083d88cabfb2"
+source = "git+https://github.com/crmne/egui?rev=8e5923482f6882a169b5c74ee6b380089f890391#8e5923482f6882a169b5c74ee6b380089f890391"
 dependencies = [
  "ahash",
  "bytemuck",
@@ -1580,7 +1580,7 @@ dependencies = [
 [[package]]
 name = "egui-winit"
 version = "0.36.1"
-source = "git+https://github.com/crmne/egui?rev=6147de7b09f255190121e8166cbb083d88cabfb2#6147de7b09f255190121e8166cbb083d88cabfb2"
+source = "git+https://github.com/crmne/egui?rev=8e5923482f6882a169b5c74ee6b380089f890391#8e5923482f6882a169b5c74ee6b380089f890391"
 dependencies = [
  "accesskit_winit",
  "arboard",
@@ -1602,7 +1602,7 @@ dependencies = [
 [[package]]
 name = "egui_extras"
 version = "0.36.1"
-source = "git+https://github.com/crmne/egui?rev=6147de7b09f255190121e8166cbb083d88cabfb2#6147de7b09f255190121e8166cbb083d88cabfb2"
+source = "git+https://github.com/crmne/egui?rev=8e5923482f6882a169b5c74ee6b380089f890391#8e5923482f6882a169b5c74ee6b380089f890391"
 dependencies = [
  "ahash",
  "egui",
@@ -1618,7 +1618,7 @@ dependencies = [
 [[package]]
 name = "egui_glow"
 version = "0.36.1"
-source = "git+https://github.com/crmne/egui?rev=6147de7b09f255190121e8166cbb083d88cabfb2#6147de7b09f255190121e8166cbb083d88cabfb2"
+source = "git+https://github.com/crmne/egui?rev=8e5923482f6882a169b5c74ee6b380089f890391#8e5923482f6882a169b5c74ee6b380089f890391"
 dependencies = [
  "bytemuck",
  "egui",
@@ -1637,7 +1637,7 @@ checksum = "252afb9ae5eaa683babdc6a068b3f5726eb19e05070c731f9b2a23a7c3e8ed34"
 [[package]]
 name = "emath"
 version = "0.36.1"
-source = "git+https://github.com/crmne/egui?rev=6147de7b09f255190121e8166cbb083d88cabfb2#6147de7b09f255190121e8166cbb083d88cabfb2"
+source = "git+https://github.com/crmne/egui?rev=8e5923482f6882a169b5c74ee6b380089f890391#8e5923482f6882a169b5c74ee6b380089f890391"
 dependencies = [
  "bytemuck",
  "serde",
@@ -1745,7 +1745,7 @@ dependencies = [
 [[package]]
 name = "epaint"
 version = "0.36.1"
-source = "git+https://github.com/crmne/egui?rev=6147de7b09f255190121e8166cbb083d88cabfb2#6147de7b09f255190121e8166cbb083d88cabfb2"
+source = "git+https://github.com/crmne/egui?rev=8e5923482f6882a169b5c74ee6b380089f890391#8e5923482f6882a169b5c74ee6b380089f890391"
 dependencies = [
  "ahash",
  "bytemuck",
@@ -1771,7 +1771,7 @@ dependencies = [
 [[package]]
 name = "epaint_default_fonts"
 version = "0.36.1"
-source = "git+https://github.com/crmne/egui?rev=6147de7b09f255190121e8166cbb083d88cabfb2#6147de7b09f255190121e8166cbb083d88cabfb2"
+source = "git+https://github.com/crmne/egui?rev=8e5923482f6882a169b5c74ee6b380089f890391#8e5923482f6882a169b5c74ee6b380089f890391"
 
 [[package]]
 name = "equivalent"
@@ -7439,7 +7439,7 @@ dependencies = [
 
 [[package]]
 name = "zapzapfast"
-version = "0.16.1"
+version = "0.16.2"
 dependencies = [
  "aes",
  "anyhow",

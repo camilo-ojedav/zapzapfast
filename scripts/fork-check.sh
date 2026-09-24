@@ -8,8 +8,11 @@
 set -u
 cd "$(git rev-parse --show-toplevel)"
 failed=0
+cr=$(printf '\r')
 
 while IFS='|' read -r file text; do
+  # Tolerate a CRLF checkout of the hook list.
+  text=${text%"$cr"}
   case "$file" in ''|'#'*) continue ;; esac
   if [ ! -f "$file" ]; then
     echo "MISSING FILE  $file"; failed=1

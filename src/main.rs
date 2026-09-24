@@ -641,7 +641,12 @@ impl eframe::App for Shell {
         if let (Some(tour), Some(app)) = (&mut self.tour, &mut self.app) {
             tour.input(app, ctx, input);
         }
-        if let Some(pos) = self.hover {
+        // Moves the pointer only while it is elsewhere: each move restarts
+        // egui's tooltip delay, so a fake pointer that kept moving in place
+        // would never show one.
+        if let Some(pos) = self.hover
+            && ctx.input(|input| input.pointer.latest_pos()) != Some(pos)
+        {
             input.events.push(egui::Event::PointerMoved(pos));
         }
     }

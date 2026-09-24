@@ -263,6 +263,10 @@ pub const RTL_SELF_CHAT: [&str; 3] = [
     "إلى السطر التالي\nالله أكبر، لا بأس 🌙\nهذا نص عربي طويل يختبر ترتيب الأسطر عندما تلتف الكلمات داخل فقاعة رسالة ضيقة إلى السطر التالي",
 ];
 
+/// Numbers inside right-to-left text on the `rtl` page: Arabic-Indic and
+/// European digits, a time, and a phone number, each reading left to right.
+const RTL_NUMBERS: &str = "لدي ٤٥ رسالة، الساعة ١٢:٣٠\nعندي 45 رسالة\nاتصل على +49 170 1234567";
+
 fn message(chat: &str, id: &str, from_me: bool, timestamp: i64, content: Content) -> Message {
     Message {
         id: id.to_owned(),
@@ -557,6 +561,7 @@ pub fn populate(app: &mut App) {
                 sender: last.sender.clone(),
                 sender_name: last.sender_name.clone(),
                 summary: last.summary(),
+                full: last.content.full_summary(),
                 status: last.status,
             });
         app.conversations.insert(sample.id.to_owned(), conversation);
@@ -875,6 +880,7 @@ pub fn populate(app: &mut App) {
                 sender: last.sender.clone(),
                 sender_name: last.sender_name.clone(),
                 summary: last.summary(),
+                full: last.content.full_summary(),
                 status: last.status,
             });
         }
@@ -1148,6 +1154,7 @@ fn interactive_sample(app: &mut App, with_image: bool) {
             sender: last.sender.clone(),
             sender_name: None,
             summary: last.summary(),
+            full: last.content.full_summary(),
             status: last.status,
         });
     }
@@ -1744,14 +1751,31 @@ pub fn apply_flags(app: &mut App, page: Option<&str>) {
                         });
                         reply
                     },
+                    // Numbers keep their left-to-right order inside
+                    // right-to-left text, and alone (#184).
+                    message(id, "rtl-numbers", false, now, Content::text(RTL_NUMBERS)),
+                    message(id, "rtl-digits", true, now, Content::text("٤٥")),
+                    {
+                        let text = Content::text("עולה 3.14 ש״ח");
+                        let mut reply = message(id, "rtl-digits-reply", false, now, text);
+                        reply.quoted = Some(Quoted {
+                            id: "rtl-digits".into(),
+                            sender: ME.into(),
+                            sender_name: None,
+                            summary: "٤٥".into(),
+                            mentions: Vec::new(),
+                        });
+                        reply
+                    },
                 ];
                 if let Some(chat) = app.chats.iter_mut().find(|chat| chat.id == id) {
                     chat.name = "שלום יזמות ונדל\"ן".into();
                     if let Some(last) = &mut chat.last {
-                        last.summary = "הכלב הגדול קפץ 🐕".into();
+                        last.summary = "٤٥".into();
                     }
                 }
                 app.conversations.get_mut(id).expect("demo group").messages = messages;
+                app.composer = "١٢:٣٠".into();
                 app.open_chat = Some(id.into());
                 app.typing.clear();
                 app.scroll_to_bottom = true;
@@ -1775,6 +1799,7 @@ pub fn apply_flags(app: &mut App, page: Option<&str>) {
                     sender: last.sender.clone(),
                     sender_name: None,
                     summary: last.summary(),
+                    full: last.content.full_summary(),
                     status: last.status,
                 });
                 app.chats.insert(0, chat);
@@ -2129,6 +2154,7 @@ pub fn apply_flags(app: &mut App, page: Option<&str>) {
                     sender: last.sender.clone(),
                     sender_name: None,
                     summary: last.summary(),
+                    full: last.content.full_summary(),
                     status: last.status,
                 });
                 app.chats.insert(0, chat);
@@ -3536,6 +3562,65 @@ mod tests {
         );
     }
 
+    /// Issue #184: "٤٥" drew as "٥٤". Every number on the `rtl` page, in the
+    /// bubbles, the quote, the chat list preview, and the composer, must read
+    /// left to right, alone or inside right-to-left text.
+    #[test]
+    fn issue_184_numbers_read_left_to_right_everywhere() {
+        fn collect(shape: &egui::Shape, galleys: &mut Vec<std::sync::Arc<egui::Galley>>) {
+            match shape {
+                egui::Shape::Text(text) => galleys.push(text.galley.clone()),
+                egui::Shape::Vec(shapes) => {
+                    for shape in shapes {
+                        collect(shape, galleys);
+                    }
+                }
+                _ => {}
+            }
+        }
+        let mut app = app();
+        apply_flags(&mut app, Some("rtl"));
+        let ctx = egui::Context::default();
+        app.attach(&ctx);
+        render(&mut app, &ctx);
+        let shapes = frame_sized(&mut app, &ctx, 780.0, Vec::new());
+        let mut galleys = Vec::new();
+        for shape in shapes {
+            collect(&shape.shape, &mut galleys);
+        }
+        let count = |text: &str| galleys.iter().filter(|g| g.text() == text).count();
+        assert!(
+            count("٤٥") >= 3,
+            "bubble, quote, and chat list preview of \"٤٥\""
+        );
+        assert_eq!(count("١٢:٣٠"), 1, "composer");
+        assert_eq!(
+            galleys
+                .iter()
+                .filter(|g| g.text().replace(crate::emoji::PLACEHOLDER, "") == RTL_NUMBERS)
+                .count(),
+            1,
+            "bubble with numbers inside Arabic"
+        );
+        let mut reversed = Vec::new();
+        for galley in &galleys {
+            for placed in &galley.rows {
+                // A row that was never reordered keeps its glyphs in shaped
+                // order, so compare them in logical (cluster) order.
+                let mut logical: Vec<_> = placed.row.glyphs.iter().collect();
+                logical.sort_by_key(|glyph| glyph.cluster);
+                for pair in logical.windows(2) {
+                    let [left, right] = pair else { continue };
+                    if left.chr.is_numeric() && right.chr.is_numeric() && left.pos.x >= right.pos.x
+                    {
+                        reversed.push((galley.text().to_owned(), left.chr, right.chr));
+                    }
+                }
+            }
+        }
+        assert!(reversed.is_empty(), "reversed digits: {reversed:?}");
+    }
+
     #[test]
     fn the_sample_has_every_kind_of_row() {
         let app = app();
@@ -3855,6 +3940,136 @@ mod tests {
             },
         );
         output.textures_delta.clear();
+    }
+
+    /// Resting the pointer on a chat row's cut-short preview shows the whole
+    /// last message, sender first in a group; a preview that already fits
+    /// shows nothing more, and neither does a row showing typing or a row
+    /// whose menu is open.
+    #[test]
+    fn hovering_a_cut_short_preview_shows_the_whole_last_message() {
+        let mut app = app();
+        let ctx = egui::Context::default();
+        app.attach(&ctx);
+        let group = SAMPLES[4].id;
+        let direct = SAMPLES[2].id;
+        // The sample has someone typing here, which the row shows instead.
+        let typing = SAMPLES[1].id;
+        let long = "The venue moved to the courtyard because the hall is being painted, \
+                    bring a jacket since it gets cold after sunset and the tail marker";
+        let sender = "4930111222333@s.whatsapp.net";
+        for chat in app.chats.iter_mut() {
+            if chat.id == group || chat.id == typing {
+                chat.last = Some(crate::model::LastMessage {
+                    from_me: false,
+                    sender: sender.into(),
+                    sender_name: Some("Linus Example".into()),
+                    summary: long.into(),
+                    full: long.into(),
+                    status: Delivery::Read,
+                });
+            } else if chat.id == direct {
+                chat.last = Some(crate::model::LastMessage {
+                    from_me: false,
+                    sender: direct.into(),
+                    sender_name: None,
+                    summary: "Short one".into(),
+                    full: "Short one".into(),
+                    status: Delivery::Read,
+                });
+            }
+        }
+        let name = app.display_name_or(sender, Some("Linus Example"));
+        let prefix = format!("{}: ", name.split_whitespace().next().unwrap());
+        render(&mut app, &ctx);
+        let long_area = ctx
+            .read_response(crate::ui::chats::preview_id(group))
+            .expect("a cut-short preview registers its hover area")
+            .rect;
+        assert!(
+            ctx.read_response(crate::ui::chats::preview_id(direct))
+                .is_none(),
+            "a preview that fits registers none"
+        );
+        assert!(
+            ctx.read_response(crate::ui::chats::preview_id(typing))
+                .is_none(),
+            "a row showing typing offers no tooltip"
+        );
+        // Rests the pointer on the preview line of `chat` past the tooltip
+        // delay and returns every text painted in the last frame.
+        let clock = std::cell::Cell::new(10.0);
+        let rest_on = |app: &mut App, chat: &str| -> Vec<String> {
+            let index = |id: &str| app.chats.iter().position(|row| row.id == id).unwrap();
+            let offset = (index(chat) as f32 - index(group) as f32) * crate::theme::ROW_HEIGHT;
+            let pos = long_area.left_center() + egui::vec2(20.0, offset);
+            let mut shapes = Vec::new();
+            for step in 0..6 {
+                clock.set(clock.get() + 0.3);
+                let mut output = ctx.run_ui(
+                    egui::RawInput {
+                        screen_rect: Some(egui::Rect::from_min_size(
+                            egui::Pos2::ZERO,
+                            egui::vec2(1180.0, 780.0),
+                        )),
+                        time: Some(clock.get()),
+                        events: if step == 0 {
+                            vec![egui::Event::PointerMoved(pos)]
+                        } else {
+                            Vec::new()
+                        },
+                        ..Default::default()
+                    },
+                    |ui| {
+                        let ctx = ui.ctx().clone();
+                        app.background_frame(&ctx);
+                        app.frame_ui(ui);
+                    },
+                );
+                output.textures_delta.clear();
+                shapes = output.shapes;
+            }
+            shapes
+                .into_iter()
+                .filter_map(|clipped| match clipped.shape {
+                    egui::Shape::Text(text) => Some(text.galley.text().to_owned()),
+                    _ => None,
+                })
+                .collect()
+        };
+
+        // A galley keeps its whole text however much of it shows, so the
+        // row's own preview counts once and the tooltip adds a second.
+        let count = |texts: &[String], needle: &str| {
+            texts.iter().filter(|text| text.contains(needle)).count()
+        };
+        let texts = rest_on(&mut app, group);
+        assert!(
+            texts
+                .iter()
+                .any(|text| text.starts_with(&prefix) && text.contains("tail marker")),
+            "the tooltip shows the whole message after the group sender: {texts:?}"
+        );
+
+        let texts = rest_on(&mut app, direct);
+        assert_eq!(
+            count(&texts, "Short one"),
+            1,
+            "a preview that fits shows no tooltip"
+        );
+        assert_eq!(
+            count(&texts, "tail marker"),
+            1,
+            "only the group row shows it"
+        );
+
+        app.open_chat_menu = Some(group.into());
+        let texts = rest_on(&mut app, group);
+        assert_eq!(
+            count(&texts, "tail marker"),
+            1,
+            "an open menu hides the tooltip"
+        );
     }
 
     fn key(key: egui::Key, modifiers: egui::Modifiers) -> egui::Event {

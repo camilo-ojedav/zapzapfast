@@ -1,1 +1,2 @@
 .github/workflows/*.lock.yml linguist-generated=true
+scripts/fork-* text eol=lf

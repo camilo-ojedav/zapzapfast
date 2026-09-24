@@ -1061,6 +1061,7 @@ impl Worker {
     fn polish_chat(&self, chat: &mut Chat) {
         if let Some(last) = chat.last.as_mut() {
             last.summary = self.pn_tokens(&last.summary);
+            last.full = self.pn_tokens(&last.full);
         }
         chat.labels = self.archive.chat_labels(&chat.id).unwrap_or_default();
     }

@@ -157,6 +157,9 @@ See **[zapfast.rocks](https://zapfast.rocks)** for downloads and guides.
   phone survive history arriving later, including during initial linking.
   Existing installations request one settings refresh after upgrading to
   recover previously lost mute settings and pin order, without relinking.
+- **Read the last message from the chat list.** When a chat's one-line
+  preview is cut short, resting the pointer on it shows the whole message in
+  a tooltip, as in WhatsApp Web, without opening the chat or marking it read.
 - **Delete chats.** Remove a chat and its messages from the chat list's
   right-click menu. The phone deletes it first, so this needs a connection,
   and the chat only leaves this computer once the phone has confirmed. Chats
