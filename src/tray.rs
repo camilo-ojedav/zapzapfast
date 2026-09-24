@@ -31,11 +31,11 @@ impl FastTray {
 
 impl ksni::Tray for FastTray {
     fn id(&self) -> String {
-        "zapfast".into()
+        crate::fork::APP_ID.into()
     }
 
     fn title(&self) -> String {
-        "ZapFast".into()
+        crate::fork::DISPLAY_NAME.into()
     }
 
     fn icon_pixmap(&self) -> Vec<ksni::Icon> {

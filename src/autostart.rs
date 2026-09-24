@@ -103,7 +103,7 @@ mod platform {
 mod platform {
     use super::*;
 
-    const LABEL: &str = "me.paolino.zapfast";
+    const LABEL: &str = crate::fork::WINDOWS_APP_ID;
 
     fn entry() -> Option<PathBuf> {
         let home = std::env::var_os("HOME")?;
@@ -172,7 +172,7 @@ mod platform {
     };
 
     const RUN: &str = r"Software\Microsoft\Windows\CurrentVersion\Run";
-    const VALUE: &str = "ZapFast";
+    const VALUE: &str = crate::fork::DISPLAY_NAME;
 
     fn wide(text: &str) -> Vec<u16> {
         std::ffi::OsStr::new(text)

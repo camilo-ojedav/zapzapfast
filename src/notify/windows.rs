@@ -9,7 +9,7 @@ use windows_sys::Win32::System::Registry::{
 };
 use winrt_notification::{IconCrop, Toast};
 
-const APPLICATION_ID: &str = "me.paolino.zapfast";
+const APPLICATION_ID: &str = crate::fork::WINDOWS_APP_ID;
 
 fn wide(value: &str) -> Vec<u16> {
     value.encode_utf16().chain(Some(0)).collect()
@@ -20,7 +20,7 @@ fn register_identity() -> std::io::Result<()> {
         r"Software\Classes\AppUserModelId\{APPLICATION_ID}"
     ));
     let name = wide("DisplayName");
-    let value = wide("ZapFast");
+    let value = wide(crate::fork::DISPLAY_NAME);
     let mut key = std::ptr::null_mut();
     // All buffers are NUL-terminated UTF-16 and remain alive during each call.
     let status = unsafe { RegCreateKeyW(HKEY_CURRENT_USER, path.as_ptr(), &mut key) };

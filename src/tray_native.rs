@@ -56,7 +56,7 @@ fn build(sender: Sender<TrayCommand>, wake: Wake) -> Result<Item, Box<dyn std::e
     ])?;
     let builder = TrayIconBuilder::new()
         .with_icon(icon)
-        .with_tooltip("ZapFast")
+        .with_tooltip(crate::fork::DISPLAY_NAME)
         .with_menu(Box::new(menu));
     // Left-click toggles the window; right-click opens the menu.
     #[cfg(target_os = "macos")]

@@ -90,7 +90,7 @@ pub fn acquire(dir: &Path, waker: &crate::backend::Waker, verb: &str) -> Outcome
             });
         }
     };
-    if legacy_instance_answers(verb) {
+    if crate::fork::LEGACY_INSTANCE_PORT && legacy_instance_answers(verb) {
         return Outcome::Surfaced;
     }
     let guard = Guard {
@@ -100,7 +100,9 @@ pub fn acquire(dir: &Path, waker: &crate::backend::Waker, verb: &str) -> Outcome
     if let Err(error) = listen(dir, guard.commands(), waker.clone()) {
         log::warn!("cannot listen for other launches: {error}");
     }
-    listen_legacy(guard.commands(), waker.clone());
+    if crate::fork::LEGACY_INSTANCE_PORT {
+        listen_legacy(guard.commands(), waker.clone());
+    }
     Outcome::Only(guard)
 }
 

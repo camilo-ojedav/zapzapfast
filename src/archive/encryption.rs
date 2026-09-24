@@ -45,7 +45,7 @@ pub(super) fn key_for(path: &Path) -> Result<Zeroizing<[u8; 32]>> {
     let store = windows_native_keyring_store::Store::new();
     let store = store.context("Unlock your OS keyring and restart ZapFast")?;
     let entry = store
-        .build("rocks.zapfast.ZapFast", &identity, None)
+        .build(crate::fork::KEYRING_SERVICE, &identity, None)
         .context("The OS keyring could not open ZapFast's archive key")?;
     key_from_entry(path, &entry)
 }

@@ -194,10 +194,10 @@ fn deliver(
     }
     let mut notification = notify_rust::Notification::new();
     notification
-        .appname("ZapFast")
+        .appname(crate::fork::DISPLAY_NAME)
         .summary(title)
         .body(body)
-        .icon("zapfast")
+        .icon(crate::fork::APP_ID)
         .action("default", "Open");
     if !system_sound {
         notification.hint(notify_rust::Hint::SuppressSound(true));
@@ -280,7 +280,10 @@ fn deliver(
         return;
     }
     let mut notification = notify_rust::Notification::new();
-    notification.appname("ZapFast").summary(title).body(body);
+    notification
+        .appname(crate::fork::DISPLAY_NAME)
+        .summary(title)
+        .body(body);
     #[cfg(target_os = "macos")]
     if system_sound {
         // The notification system's default sound; custom sounds are played

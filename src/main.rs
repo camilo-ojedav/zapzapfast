@@ -245,6 +245,8 @@ fn main() -> eframe::Result<()> {
     if let Some(guard) = &instance {
         app.set_remote_control(guard);
     }
+    #[allow(unused_mut)]
+    let mut app = zapfast::fork::accounts::Accounts::new(app, &waker, demo);
     #[cfg(feature = "demo")]
     if demo {
         zapfast::demo::populate(&mut app);
@@ -275,7 +277,7 @@ fn main() -> eframe::Result<()> {
             .lock()
             .unwrap_or_else(|p| p.into_inner())
             .as_ref()
-            .is_some_and(app::App::hides_to_tray);
+            .is_some_and(|app| app.hides_to_tray());
 
     // The link, archive, and tray outlive windows. Recreate a window when the
     // tray, notification, or another launch requests one.
@@ -305,7 +307,7 @@ fn main() -> eframe::Result<()> {
                     }),
             );
             eframe::run_native(
-                "ZapFast",
+                zapfast::fork::DISPLAY_NAME,
                 native_options(demo_persistence.clone()),
                 Box::new(move |cc| {
                     creator_waker.attach(&cc.egui_ctx);
@@ -449,11 +451,15 @@ fn native_options(demo_persistence: Option<std::path::PathBuf>) -> eframe::Nativ
     let demo_size = demo_size_arg().unwrap_or([1180.0, 780.0]);
     let demo = demo_persistence.is_some();
     let viewport = egui::ViewportBuilder::default()
-        .with_title(if demo { "ZapFast Demo" } else { "ZapFast" })
+        .with_title(if demo {
+            "ZapFast Demo"
+        } else {
+            zapfast::fork::DISPLAY_NAME
+        })
         .with_app_id(if demo {
             "zapfast-demo".to_owned()
         } else {
-            std::env::var("FLATPAK_ID").unwrap_or_else(|_| "zapfast".to_owned())
+            std::env::var("FLATPAK_ID").unwrap_or_else(|_| zapfast::fork::APP_ID.to_owned())
         })
         .with_inner_size(demo_size)
         // Keep the floor small enough that Windows can still snap the window
@@ -566,8 +572,8 @@ struct Shell {
     /// Whether this window's first frame checked that a monitor shows it.
     window_recovery_checked: bool,
     update_receipt: Option<std::path::PathBuf>,
-    app: Option<app::App>,
-    slot: std::sync::Arc<std::sync::Mutex<Option<app::App>>>,
+    app: Option<zapfast::fork::accounts::Accounts>,
+    slot: std::sync::Arc<std::sync::Mutex<Option<zapfast::fork::accounts::Accounts>>>,
     #[cfg(feature = "demo")]
     shot: Option<Shot>,
     #[cfg(feature = "demo")]

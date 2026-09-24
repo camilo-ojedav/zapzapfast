@@ -30,7 +30,7 @@ fn launcher_uri(desktop_file: &str) -> String {
 /// window uses (see `main.rs`). A Flatpak install ships
 /// `rocks.zapfast.ZapFast.desktop` and sets the same id in `FLATPAK_ID`.
 fn desktop_file() -> String {
-    std::env::var("FLATPAK_ID").unwrap_or_else(|_| "zapfast".to_owned())
+    std::env::var("FLATPAK_ID").unwrap_or_else(|_| crate::fork::APP_ID.to_owned())
 }
 
 /// Counts unread messages on the taskbar icon through the Unity Launcher API.
