@@ -879,7 +879,15 @@ mod tests {
             "Order ٤٥ today",
             "٤٥ messages",
         ] {
-            assert_visual(text);
+            // Fonts such as Windows' Arial draw lam-alef as one glyph, which a
+            // glyph-per-character comparison misreads; compare those rows with
+            // the ligature-aware check instead.
+            if ["لا", "لآ", "لأ", "لإ"].iter().any(|pair| text.contains(pair)) {
+                let (galley, atlas) = bubble(text, 2000.0);
+                assert_rows_follow_uba(&galley, &atlas);
+            } else {
+                assert_visual(text);
+            }
         }
     }
 
