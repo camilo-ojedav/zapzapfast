@@ -8,6 +8,7 @@
 
 pub mod accounts;
 pub mod profiles;
+pub mod rail;
 
 /// Name shown to people: window title, notifications, tray, menus.
 pub const DISPLAY_NAME: &str = "ZapZapFast";

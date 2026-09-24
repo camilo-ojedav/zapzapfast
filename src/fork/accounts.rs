@@ -53,6 +53,17 @@ pub struct Accounts {
     /// Name typed in the link dialog, and why the last attempt failed.
     adding: Option<String>,
     add_error: Option<String>,
+    /// Names, emoji and pictures on the rail, and whether it is folded.
+    rail: super::rail::Rail,
+    /// Account being customised, its draft look and the emoji field's text.
+    editing: Option<Editing>,
+}
+
+struct Editing {
+    index: usize,
+    look: super::rail::Look,
+    emoji: String,
+    error: Option<String>,
 }
 
 impl std::ops::Deref for Accounts {
@@ -85,6 +96,8 @@ impl Accounts {
             link: None,
             adding: None,
             add_error: None,
+            rail: super::rail::Rail::default(),
+            editing: None,
         }
     }
 
@@ -97,6 +110,7 @@ impl Accounts {
             return accounts;
         }
         accounts.link = Some((waker.clone(), base.clone()));
+        accounts.rail = super::rail::Rail::load(&base.config);
         for name in super::profiles::installed(&base) {
             if let Err(error) = accounts.start(&name) {
                 log::warn!("profile `{name}` not loaded: {error}");
@@ -271,8 +285,16 @@ impl Accounts {
     }
 
     fn rail(&mut self, ui: &mut egui::Ui) {
+        if self.rail.hidden {
+            self.rail_opener(ui.ctx());
+            self.link_dialog(ui.ctx());
+            self.edit_dialog(ui.ctx());
+            return;
+        }
         let mut chosen = None;
         let mut add = false;
+        let mut edit = None;
+        let mut hide = false;
         egui::Panel::left(egui::Id::new("zapzapfast-account-rail"))
             .exact_size(56.0)
             .resizable(false)
@@ -280,14 +302,30 @@ impl Accounts {
                 ui.add_space(8.0);
                 ui.vertical_centered(|ui| {
                     for (index, account) in self.accounts.iter().enumerate() {
-                        if account_button(ui, account, index == self.current).clicked() {
+                        let look = self.rail.look(&key(account));
+                        let selected = index == self.current;
+                        let response = account_button(ui, account, &look, &self.rail, selected);
+                        if response.clicked() {
                             chosen = Some(index);
                         }
+                        response.context_menu(|ui| {
+                            if ui.button("Edit name and icon…").clicked() {
+                                edit = Some(index);
+                                ui.close();
+                            }
+                        });
                         ui.add_space(6.0);
                     }
                     add = ui
                         .add_sized([40.0, 32.0], egui::Button::new("+"))
                         .on_hover_text("Link another account")
+                        .clicked();
+                });
+                ui.with_layout(egui::Layout::bottom_up(egui::Align::Center), |ui| {
+                    ui.add_space(8.0);
+                    hide = ui
+                        .add_sized([40.0, 32.0], egui::Button::new("‹"))
+                        .on_hover_text("Hide the account rail")
                         .clicked();
                 });
             });
@@ -299,7 +337,137 @@ impl Accounts {
             self.adding = Some(String::new());
             self.add_error = None;
         }
+        if hide {
+            self.rail.hidden = true;
+            self.rail.save();
+            ui.ctx().request_repaint();
+        }
+        if let Some(index) = edit {
+            let look = self.rail.look(&key(&self.accounts[index]));
+            self.editing = Some(Editing {
+                index,
+                emoji: look.emoji.clone().unwrap_or_default(),
+                look,
+                error: None,
+            });
+        }
         self.link_dialog(ui.ctx());
+        self.edit_dialog(ui.ctx());
+    }
+
+    /// The floating button that brings a folded rail back, dotted when an
+    /// account off screen has unread messages.
+    fn rail_opener(&mut self, ctx: &egui::Context) {
+        let unread = self
+            .accounts
+            .iter()
+            .enumerate()
+            .any(|(index, account)| index != self.current && account.app.unread_total() > 0);
+        let mut show = false;
+        egui::Area::new(egui::Id::new("zapzapfast-rail-opener"))
+            .anchor(egui::Align2::LEFT_BOTTOM, egui::vec2(8.0, -8.0))
+            .order(egui::Order::Foreground)
+            .show(ctx, |ui| {
+                let button = egui::Button::new("›").min_size(egui::vec2(28.0, 32.0));
+                let response = ui.add(button).on_hover_text("Show the account rail");
+                if unread {
+                    ui.painter().circle_filled(
+                        response.rect.right_top(),
+                        5.0,
+                        ui.visuals().error_fg_color,
+                    );
+                }
+                show = response.clicked();
+            });
+        if show {
+            self.rail.hidden = false;
+            self.rail.save();
+            ctx.request_repaint();
+        }
+    }
+
+    fn edit_dialog(&mut self, ctx: &egui::Context) {
+        let Some(mut editing) = self.editing.take() else {
+            return;
+        };
+        let Some(account) = self.accounts.get(editing.index) else {
+            return;
+        };
+        let key = key(account);
+        let fallback = default_label(account);
+        let mut open = true;
+        let mut save = false;
+        let mut cancel = false;
+        let mut pick = false;
+        egui::Window::new("Edit account")
+            .id(egui::Id::new("zapzapfast-edit-account"))
+            .collapsible(false)
+            .resizable(false)
+            .anchor(egui::Align2::CENTER_CENTER, egui::Vec2::ZERO)
+            .open(&mut open)
+            .show(ctx, |ui| {
+                ui.label("Name");
+                let mut name = editing.look.name.clone().unwrap_or_default();
+                ui.add(egui::TextEdit::singleline(&mut name).hint_text(fallback.as_str()));
+                editing.look.name = Some(name.trim().to_owned()).filter(|n| !n.is_empty());
+                ui.add_space(6.0);
+                ui.label("Emoji (Win + . opens the emoji picker)");
+                ui.add(egui::TextEdit::singleline(&mut editing.emoji).desired_width(80.0));
+                ui.add_space(6.0);
+                ui.horizontal(|ui| {
+                    pick = ui.button("Choose picture…").clicked();
+                    if editing.look.picture.is_some() && ui.button("Remove picture").clicked() {
+                        editing.look.picture = None;
+                    }
+                });
+                if let Some(texture) = editing
+                    .look
+                    .picture
+                    .as_deref()
+                    .and_then(|file| self.rail.texture(ctx, file))
+                {
+                    ui.add(egui::Image::new(&texture).fit_to_exact_size(egui::vec2(40.0, 40.0)));
+                }
+                ui.small("A picture wins over an emoji; with neither, the name's initial shows.");
+                if let Some(error) = &editing.error {
+                    ui.colored_label(ui.visuals().error_fg_color, error);
+                }
+                ui.add_space(8.0);
+                ui.horizontal(|ui| {
+                    save = ui.button("Save").clicked();
+                    cancel = ui.button("Cancel").clicked();
+                });
+            });
+        if pick {
+            let chosen = rfd::FileDialog::new()
+                .set_title("Choose a picture for this account")
+                .add_filter("Images", &["png", "jpg", "jpeg", "webp", "gif"])
+                .pick_file();
+            if let Some(path) = chosen {
+                match self.rail.import_picture(&key, &path) {
+                    Ok(file) => {
+                        editing.look.picture = Some(file);
+                        editing.error = None;
+                    }
+                    Err(error) => editing.error = Some(format!("could not read it: {error}")),
+                }
+            }
+        }
+        if !open || cancel {
+            return;
+        }
+        if !save {
+            self.editing = Some(editing);
+            return;
+        }
+        if !editing.emoji.trim().is_empty() && super::rail::emoji_of(&editing.emoji).is_none() {
+            editing.error = Some("that is not an emoji".to_owned());
+            self.editing = Some(editing);
+            return;
+        }
+        editing.look.emoji = super::rail::emoji_of(&editing.emoji);
+        self.rail.set_look(&key, editing.look);
+        ctx.request_repaint();
     }
 
     fn link_dialog(&mut self, ctx: &egui::Context) {
@@ -372,25 +540,50 @@ fn fresh_memory(leaving: &egui::Memory) -> egui::Memory {
     memory
 }
 
-/// One rail entry: the account's initial, marked when selected and badged
-/// with its unread count.
-fn account_button(ui: &mut egui::Ui, account: &Account, selected: bool) -> egui::Response {
-    let label = account_label(account);
-    let initial = label
-        .chars()
-        .next()
-        .map(|first| first.to_uppercase().to_string())
-        .unwrap_or_else(|| "?".to_owned());
+/// Key of an account in the rail's file: its profile, empty for the unnamed.
+fn key(account: &Account) -> String {
+    account.profile.clone().unwrap_or_default()
+}
+
+/// One rail entry: the account's picture, emoji or initial, marked when
+/// selected and badged with its unread count.
+fn account_button(
+    ui: &mut egui::Ui,
+    account: &Account,
+    look: &super::rail::Look,
+    rail: &super::rail::Rail,
+    selected: bool,
+) -> egui::Response {
+    let label = look.name.clone().unwrap_or_else(|| default_label(account));
     let (rect, response) = ui.allocate_exact_size(egui::vec2(40.0, 40.0), egui::Sense::click());
     let visuals = ui.style().interact_selectable(&response, selected);
     ui.painter().rect_filled(rect, 12.0, visuals.bg_fill);
-    ui.painter().text(
-        rect.center(),
-        egui::Align2::CENTER_CENTER,
-        initial,
-        egui::FontId::proportional(18.0),
-        visuals.fg_stroke.color,
-    );
+    let texture = look
+        .picture
+        .as_deref()
+        .and_then(|file| rail.texture(ui.ctx(), file));
+    if let Some(texture) = texture {
+        // The selected account keeps a rim of the highlight around it.
+        let inner = rect.shrink(if selected { 3.0 } else { 0.0 });
+        egui::Image::new(&texture)
+            .corner_radius(10.0)
+            .paint_at(ui, inner);
+    } else if let Some(emoji) = &look.emoji {
+        crate::emoji::paint_cluster(ui, emoji, rect.shrink(6.0));
+    } else {
+        let initial = label
+            .chars()
+            .next()
+            .map(|first| first.to_uppercase().to_string())
+            .unwrap_or_else(|| "?".to_owned());
+        ui.painter().text(
+            rect.center(),
+            egui::Align2::CENTER_CENTER,
+            initial,
+            egui::FontId::proportional(18.0),
+            visuals.fg_stroke.color,
+        );
+    }
     let unread = account.app.unread_total();
     if unread > 0 {
         let corner = rect.right_top() + egui::vec2(-4.0, 4.0);
@@ -413,7 +606,7 @@ fn account_button(ui: &mut egui::Ui, account: &Account, selected: bool) -> egui:
 
 /// The account's own name, then its profile, then a placeholder: a rail drawn
 /// before the phone answers still has to say something.
-fn account_label(account: &Account) -> String {
+fn default_label(account: &Account) -> String {
     account
         .app
         .me_name
