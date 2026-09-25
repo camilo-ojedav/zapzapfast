@@ -194,6 +194,7 @@ fn main() -> eframe::Result<()> {
     // directories have been created and secured successfully.
     dirs.ensure()
         .map_err(|error| eframe::Error::AppCreation(error.into()))?;
+    let dirs = if demo { dirs } else { zapfast::fork::cache::main_account(dirs) };
     let mut logger =
         env_logger::Builder::from_env(env_logger::Env::default().default_filter_or(default_filter));
     // Write desktop-session logs to disk. Demo runs use stderr so they do not

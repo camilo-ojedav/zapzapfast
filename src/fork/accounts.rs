@@ -239,6 +239,8 @@ impl Accounts {
         let first_hides = self.hides_to_tray();
         let app = &mut self.accounts[self.current].app;
         app.frame_ui(ui);
+        super::select::bar(&ctx, app);
+        super::cleanup::window(&ctx, app);
         // Accounts without the tray would quit on close; the window follows
         // the first account's choice instead.
         if first_hides

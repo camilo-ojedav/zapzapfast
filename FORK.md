@@ -55,6 +55,13 @@ conflict, so:
 | `packaging/windows/zapfast.iss` | AppName, AppExeName, AppId, output name, AppUserModelID | installs beside ZapFast |
 | `.github/workflows/release.yml` | `zapzapfast` binary paths | the binary was renamed |
 | `AGENTS.md` | one line at the top pointing here | agents read this first |
+| `src/ui/widgets.rs` | `crate::fork::about::credit` inside the credit line | "Fork by Camilo Ojeda" in About |
+| `src/archive.rs` | `#[path = "fork/archive_ext.rs"] mod fork_ext;` | archive queries for phone labels and sticker paths |
+| `src/backend.rs` | `Command::Fork(ForkCommand)` | fork work sent to the worker |
+| `src/backend/worker.rs` | `#[path = "../fork/worker_ext.rs"] mod fork_ext;`, `fork_wa_event` at the top of `handle_wa_event`, `Command::Fork` arm, `fork_reorganize_media()` before `relocate_media()`, `fork::cache::chat_dir` in `media_path` | WhatsApp Business labels, phone resync, chat cleanup, per-chat media folders |
+| `src/main.rs` | `fork::cache::main_account(dirs)` | the unnamed profile's cache lives in `cache/accounts/principal` |
+| `src/ui/chats.rs` | `fork::select::click` on a row click, `fork::select::paint` after the avatar | selecting several chats |
+| `src/ui/settings.rs` | a "Maintenance" section calling `fork::cleanup::settings_block` | chat cleanup and phone resync |
 
 ## How several accounts work
 
@@ -114,3 +121,21 @@ AppUserModelID `me.paolino.zapzapfast`, installer AppId
 - Upstream's definition of done in `AGENTS.md` still applies.
 - Use `-j 4` for `cargo test --all-targets`; the default job count exhausts
   memory on Camilo's machines.
+
+## Labels, cache layout, selection and cleanup
+
+- **WhatsApp Business labels** (`src/fork/worker_ext.rs`): `LabelEditUpdate`
+  and `LabelAssociationUpdate` are stored in upstream's local label tables
+  with ids prefixed `wa-`, so the existing chips, filters and menus show them.
+  Sync is one way, phone to computer. The first connection of every archive
+  replays the `regular` (labels) and `regular_low` (archive state) collections
+  once; Settings → Maintenance → Sync repeats it.
+- **Cache layout** (`src/fork/cache.rs`): every account's cache sits under
+  `cache/accounts/<name>`, the unnamed one as `principal`, and attachments go
+  to `media/<chat>/archivos` or `media/<chat>/stickers`. Existing files move
+  once at startup and the archive is re-pointed. Config and the archive never
+  move: the keyring key derives from the archive's path.
+- **Selection** (`src/fork/select.rs`): Ctrl/Shift+click selects chats; a bar
+  acts on all of them.
+- **Cleanup** (`src/fork/cleanup.rs`): a popup listing empty, unknown and
+  undeliverable chats with a tick each.

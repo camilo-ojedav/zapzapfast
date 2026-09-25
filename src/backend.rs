@@ -116,6 +116,7 @@ pub struct CreatedPoll {
 
 #[derive(Clone, Debug)]
 pub enum Command {
+    Fork(crate::fork::sync::ForkCommand),
     RefreshPoll {
         chat: ChatId,
         message: String,

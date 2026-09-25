@@ -866,6 +866,7 @@ fn row(app: &mut App, ui: &mut egui::Ui, chat: &Chat) -> egui::Response {
             &chat.id,
             picture.as_deref(),
         );
+        crate::fork::select::paint(ui, &palette, rect, avatar_rect, &chat.id);
         if chat.ephemeral_expiration.is_some() {
             widgets::paint_disappearing_badge(ui, &palette, avatar_rect);
         }
@@ -1005,7 +1006,7 @@ fn row(app: &mut App, ui: &mut egui::Ui, chat: &Chat) -> egui::Response {
     if let Some((area, prefix, full)) = full_preview {
         full_preview_tooltip(app, ui, &chat.id, area, &prefix, &full);
     }
-    if response.clicked() {
+    if response.clicked() && !crate::fork::select::click(ui, &chat.id) {
         app.actions.push(Action::OpenChat(chat.id.clone()));
     }
     let menu_palette = palette;

@@ -6,10 +6,15 @@
 //! happen: move the logic in here and leave the hook a call. `FORK.md` lists
 //! every hook, and `scripts/fork-check.sh` verifies them after a rebase.
 
+pub mod about;
 pub mod accounts;
+pub mod cache;
+pub mod cleanup;
 pub mod i18n;
 pub mod profiles;
 pub mod rail;
+pub mod select;
+pub mod sync;
 
 /// Name shown to people: window title, notifications, tray, menus.
 pub const DISPLAY_NAME: &str = "ZapZapFast";

@@ -37,6 +37,8 @@ use whatsapp_rust::{MediaRetryResult, MediaReuploadRequest};
 
 mod device_store;
 mod favorite_chats;
+#[path = "../fork/worker_ext.rs"]
+mod fork_ext;
 mod interactive;
 mod link_watch;
 mod poll_history;
@@ -525,6 +527,7 @@ pub async fn run(
     worker.backfill();
     worker.backfill_video_notes();
     worker.backfill_interactive();
+    worker.fork_reorganize_media();
     worker.relocate_media();
     discard_attachment_staging(&worker.dirs.media_cache_dir());
     discard_attachment_staging(&worker.dirs.sticker_cache_dir());
@@ -2012,6 +2015,9 @@ impl Worker {
 
     async fn handle_wa_event(&mut self, event: Arc<wa_events::Event>) {
         use wa_events::Event as E;
+        if self.fork_wa_event(&event) {
+            return;
+        }
         match &*event {
             E::PairingQrCode(qr) => {
                 self.qr = Some(qr.code.clone());
@@ -4784,6 +4790,7 @@ impl Worker {
                     .map_err(|error| error.to_string())
                 });
             }
+            Command::Fork(command) => self.fork_command(command),
             Command::DeleteChat(chat) => {
                 // The phone deletes first. Deleting here while offline would
                 // leave the chat on the phone, and the next sync would bring
@@ -6724,7 +6731,7 @@ fn media_path(dir: &Path, chat: &str, id: &str, mime: &str, file_name: Option<&s
     // The stem contains only ASCII alphanumerics, '_' and '-', and the validated
     // extension only alphanumerics and '-'. The single literal dot cannot create
     // a path component, drive prefix or alternate data stream on either OS.
-    dir.join(format!("{stem}.{extension}"))
+    crate::fork::cache::chat_dir(dir, chat, &extension).join(format!("{stem}.{extension}"))
 }
 
 fn media(

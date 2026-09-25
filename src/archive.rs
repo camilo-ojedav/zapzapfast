@@ -13,6 +13,8 @@ mod drafts;
 mod encryption;
 mod favorites;
 pub use favorites::Favorite;
+#[path = "fork/archive_ext.rs"]
+mod fork_ext;
 mod labels;
 pub use labels::{DEFAULT_COLOR, LABEL_LIMIT, NAME_LIMIT};
 mod polls;

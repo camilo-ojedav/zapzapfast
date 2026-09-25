@@ -21,7 +21,8 @@ pub fn validate(name: &str) -> Result<String, String> {
             .chars()
             .all(|c| c.is_ascii_lowercase() || c.is_ascii_digit() || c == '-')
         && !name.starts_with('-')
-        && !name.ends_with('-');
+        && !name.ends_with('-')
+        && name != super::cache::MAIN_ACCOUNT;
     if plain {
         Ok(name.to_owned())
     } else {
@@ -45,6 +46,8 @@ pub fn dirs(base: &AppDirs, name: &str) -> AppDirs {
     ] {
         *dir = dir.join(ACCOUNTS).join(name);
     }
+    // The unnamed profile's cache is itself under `accounts/`; see `cache`.
+    dirs.cache = super::cache::root(&base.cache).join(ACCOUNTS).join(name);
     dirs
 }
 

@@ -647,6 +647,7 @@ pub fn credit(ui: &mut Ui, palette: &Palette, locale: crate::i18n::Locale) -> bo
         if !after.is_empty() {
             theme::text(ui, after, theme::regular(13.0), palette.secondary);
         }
+        crate::fork::about::credit(ui, palette);
     });
     clicked
 }

@@ -29,3 +29,14 @@ packaging/windows/zapfast.iss|AppUserModelID: "me.paolino.zapzapfast"
 .github/workflows/release.yml|release/zapzapfast.exe
 AGENTS.md|FORK.md
 src/backend/worker.rs|.with_os(crate::fork::DISPLAY_NAME)
+src/ui/widgets.rs|crate::fork::about::credit(ui, palette);
+src/archive.rs|mod fork_ext;
+src/backend.rs|Fork(crate::fork::sync::ForkCommand),
+src/backend/worker.rs|if self.fork_wa_event(&event) {
+src/backend/worker.rs|Command::Fork(command) => self.fork_command(command),
+src/backend/worker.rs|worker.fork_reorganize_media();
+src/backend/worker.rs|crate::fork::cache::chat_dir(dir, chat, &extension)
+src/main.rs|zapfast::fork::cache::main_account(dirs)
+src/ui/chats.rs|!crate::fork::select::click(ui, &chat.id)
+src/ui/chats.rs|crate::fork::select::paint(ui, &palette, rect, avatar_rect, &chat.id);
+src/ui/settings.rs|crate::fork::cleanup::settings_block

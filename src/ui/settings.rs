@@ -686,6 +686,8 @@ fn sections(app: &App) -> Vec<Section> {
         |ui, app| about(app, ui),
     );
 
+    let mut fork_section = Section::new(translated(locale, "Maintenance"));
+    fork_section.block(vec!["Clean up chats".into(), "Sync with the phone".into()], crate::fork::cleanup::settings_block);
     vec![
         appearance,
         chats,
@@ -695,6 +697,7 @@ fn sections(app: &App) -> Vec<Section> {
         account_section,
         files,
         about_section,
+        fork_section,
     ]
 }
 
