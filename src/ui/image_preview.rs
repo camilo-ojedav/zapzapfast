@@ -28,7 +28,7 @@ pub fn show(app: &mut App, ctx: &egui::Context) {
                     .path()
                     .file_name()
                     .and_then(|name| name.to_str())
-                    .unwrap_or("Image");
+                    .unwrap_or(crate::fork::i18n::tr("Image"));
                 crate::ui::widgets::rich_text(ui, name, theme::semibold(14.0), palette.text);
                 ui.with_layout(Layout::right_to_left(Align::Center), |ui| {
                     if theme::icon_button(
@@ -75,13 +75,13 @@ pub fn show(app: &mut App, ctx: &egui::Context) {
                     let (label, hint, action) = if preview.is_fit() {
                         (
                             "Fit".to_owned(),
-                            "Show at original size",
+                            crate::fork::i18n::tr("Show at original size"),
                             Action::ImageActualSize,
                         )
                     } else {
                         (
                             format!("{:.0}%", preview.zoom() * 100.0),
-                            "Fit to the window (0)",
+                            crate::fork::i18n::tr("Fit to the window (0)"),
                             Action::FitImage,
                         )
                     };
@@ -145,8 +145,8 @@ pub fn show(app: &mut App, ctx: &egui::Context) {
                         canvas,
                         Layout::centered_and_justified(egui::Direction::TopDown),
                         |ui| {
-                            ui.label("This image could not be displayed in ZapFast.");
-                            if ui.button("Open externally").clicked() {
+                            ui.label(crate::fork::i18n::tr("This image could not be displayed in ZapFast."));
+                            if ui.button(crate::fork::i18n::tr("Open externally")).clicked() {
                                 app.actions
                                     .push(Action::OpenFile(preview.path().to_owned()));
                             }

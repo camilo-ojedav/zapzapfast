@@ -105,7 +105,7 @@ fn interactive_list(app: &mut App, ui: &mut egui::Ui, chat: &str, message: &str,
         _ => None,
     });
     ui.horizontal(|ui| {
-        let label = selected.map_or("Choose an option", |button| button.label.as_str());
+        let label = selected.map_or(crate::fork::i18n::tr("Choose an option"), |button| button.label.as_str());
         let heading = widgets::line(
             ui,
             label,
@@ -127,7 +127,7 @@ fn interactive_list(app: &mut App, ui: &mut egui::Ui, chat: &str, message: &str,
     let Some(InteractiveAction::Select(options)) = selected.map(|button| &button.action) else {
         widgets::rich_text(
             ui,
-            "This list is no longer available.",
+            crate::fork::i18n::tr("This list is no longer available."),
             theme::regular(14.0),
             palette.secondary,
         );
@@ -141,11 +141,11 @@ fn interactive_list(app: &mut App, ui: &mut egui::Ui, chat: &str, message: &str,
     let enabled = available && app.link.is_connected() && !pending;
     if !enabled {
         let reason = if !available {
-            "This list can no longer receive replies."
+            crate::fork::i18n::tr("This list can no longer receive replies.")
         } else if pending {
-            "Sending reply…"
+            crate::fork::i18n::tr("Sending reply…")
         } else {
-            "Connect to WhatsApp to reply"
+            crate::fork::i18n::tr("Connect to WhatsApp to reply")
         };
         widgets::rich_text(ui, reason, theme::regular(13.0), palette.secondary);
     }
@@ -297,7 +297,7 @@ fn unlock_locked_chats(app: &mut App, ui: &mut egui::Ui) {
         egui::TextEdit::singleline(&mut app.chat_lock_entry)
             .id(entry_id)
             .password(true)
-            .hint_text("Local code")
+            .hint_text(crate::fork::i18n::tr("Local code"))
             .desired_width(f32::INFINITY),
     );
     if ui.memory(|memory| memory.focused().is_none()) {
@@ -308,7 +308,7 @@ fn unlock_locked_chats(app: &mut App, ui: &mut egui::Ui) {
             egui::TextEdit::singleline(&mut app.chat_lock_confirm)
                 .id(confirm_id)
                 .password(true)
-                .hint_text("Confirm code")
+                .hint_text(crate::fork::i18n::tr("Confirm code"))
                 .desired_width(f32::INFINITY),
         );
     }
@@ -675,7 +675,7 @@ fn confirm_delete_chat(app: &mut App, ui: &mut egui::Ui, id: &str) {
     let palette = app.palette;
     let name = app
         .chat(id)
-        .map_or_else(|| "this chat".to_owned(), |chat| chat.name.clone());
+        .map_or_else(|| crate::fork::i18n::tr("this chat").to_owned(), |chat| chat.name.clone());
     title(ui, app, "Delete chat?");
     theme::paragraph(
         ui,
@@ -711,7 +711,7 @@ fn join_group(app: &mut App, ui: &mut egui::Ui) {
             title(ui, app, "Group invite");
             ui.horizontal(|ui| {
                 ui.spinner();
-                ui.label(egui::RichText::new("Looking up the group…").color(palette.secondary));
+                ui.label(egui::RichText::new(crate::fork::i18n::tr("Looking up the group…")).color(palette.secondary));
             });
             cancel_row(app, ui);
             return;
@@ -1149,7 +1149,7 @@ fn pair_with_phone(app: &mut App, ui: &mut egui::Ui) {
             let get_code = ui
                 .add_enabled_ui(ready, |ui| {
                     theme::pill_button(ui, &palette, "Get a code", true)
-                        .on_disabled_hover_text(NUMBER_TOO_SHORT)
+                        .on_disabled_hover_text(crate::fork::i18n::tr(NUMBER_TOO_SHORT))
                 })
                 .inner;
             if (get_code.clicked() || submit) && ready {
@@ -1207,7 +1207,7 @@ fn new_contact(app: &mut App, ui: &mut egui::Ui) {
             egui::TextEdit::singleline($buffer)
                 .id(egui::Id::new($salt))
                 .hint_text(
-                    egui::RichText::new($hint)
+                    egui::RichText::new(crate::fork::i18n::tr($hint))
                         .color(palette.dim)
                         .font(theme::regular(16.0)),
                 )
@@ -1300,9 +1300,9 @@ fn new_contact(app: &mut App, ui: &mut egui::Ui) {
             let (save, message) = ui
                 .add_enabled_ui(ready, |ui| {
                     let hint = if app.new_contact_pending {
-                        "Checking the number…"
+                        crate::fork::i18n::tr("Checking the number…")
                     } else {
-                        NUMBER_TOO_SHORT
+                        crate::fork::i18n::tr(NUMBER_TOO_SHORT)
                     };
                     let save = theme::pill_button(ui, &palette, "Save contact", named)
                         .on_disabled_hover_text(hint)
@@ -1388,7 +1388,7 @@ fn chat_info(app: &mut App, ui: &mut egui::Ui, id: &str) {
                                 egui::TextEdit::singleline(buffer)
                                     .id(egui::Id::new(salt))
                                     .hint_text(
-                                        egui::RichText::new(hint)
+                                        egui::RichText::new(crate::fork::i18n::tr(hint))
                                             .color(palette.dim)
                                             .font(theme::semibold(15.0)),
                                     )
@@ -1458,10 +1458,10 @@ fn chat_info(app: &mut App, ui: &mut egui::Ui, id: &str) {
         }
         if let Some(presence) = app.presence.get(id) {
             let status = if presence.online {
-                "online".to_owned()
+                crate::fork::i18n::tr("online").to_owned()
             } else if let Some(seen) = presence.last_seen {
                 format!(
-                    "last seen {}",
+                    "{} {}", crate::fork::i18n::tr("last seen"),
                     crate::util::chat_stamp(app.locale, seen).to_lowercase()
                 )
             } else {
@@ -1688,6 +1688,7 @@ fn chat_info(app: &mut App, ui: &mut egui::Ui, id: &str) {
 
 /// A filled button for a destructive action.
 fn danger_button(ui: &mut egui::Ui, app: &mut App, label: &str) -> bool {
+    let label = crate::fork::i18n::tr(label);
     let palette = app.palette;
     let galley = ui.painter().layout_no_wrap(
         label.to_owned(),

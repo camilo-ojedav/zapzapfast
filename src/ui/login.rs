@@ -127,7 +127,7 @@ fn body(app: &mut App, ui: &mut egui::Ui) {
                 busy(
                     ui,
                     palette.accent,
-                    &format!("Requesting a code for +{phone}…"),
+                    &crate::fork::i18n::tr("Requesting a code for +{}…").replace("{}", &phone),
                 );
             } else if let Some(qr) = qr {
                 qr_view(app, ui, &qr);
@@ -146,6 +146,7 @@ fn body(app: &mut App, ui: &mut egui::Ui) {
 }
 
 fn busy(ui: &mut egui::Ui, color: egui::Color32, label: &str) {
+    let label = crate::fork::i18n::tr(label);
     ui.horizontal(|ui| {
         let width = 24.0
             + 8.0
@@ -218,7 +219,7 @@ fn pair_code_view(app: &mut App, ui: &mut egui::Ui, code: &str, phone: Option<&s
     if let Some(phone) = phone {
         theme::text(
             ui,
-            format!("for +{phone}"),
+            crate::fork::i18n::tr("for +{}").replace("{}", phone),
             theme::regular(13.0),
             palette.secondary,
         );

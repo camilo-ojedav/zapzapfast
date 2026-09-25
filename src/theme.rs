@@ -594,6 +594,7 @@ pub fn icon_button(
     hover: Color32,
     tooltip: &str,
 ) -> Response {
+    let tooltip = crate::fork::i18n::tr(tooltip);
     let edge = size + 12.0;
     let (rect, response) = ui.allocate_exact_size(Vec2::splat(edge), Sense::click());
     reveal_focus(&response);
@@ -631,6 +632,7 @@ pub fn circle_button(
     icon_color: Color32,
     tooltip: &str,
 ) -> Response {
+    let tooltip = crate::fork::i18n::tr(tooltip);
     let (rect, response) = ui.allocate_exact_size(Vec2::splat(diameter), Sense::click());
     reveal_focus(&response);
     focus_outline_on_fill(ui, response.id, rect, diameter / 2.0, fill);
@@ -671,6 +673,7 @@ pub fn logo(ui: &egui::Ui, center: egui::Pos2, diameter: f32, disc: Color32, gly
 
 /// A pill-shaped text button: filled for the primary action, outlined otherwise.
 pub fn pill_button(ui: &mut egui::Ui, palette: &Palette, label: &str, primary: bool) -> Response {
+    let label = crate::fork::i18n::tr(label);
     let font = semibold(13.0);
     let color = if primary {
         palette.on_accent
@@ -735,6 +738,7 @@ pub fn soft_button(
     label: &str,
     active: bool,
 ) -> Response {
+    let label = crate::fork::i18n::tr(label);
     let font = medium(13.0);
     let color = if active { palette.window } else { palette.text };
     let galley = ui.painter().layout_no_wrap(label.to_string(), font, color);
@@ -772,6 +776,7 @@ pub fn soft_button(
 
 /// Calculates [`soft_button`] width before layout.
 pub fn soft_button_width(ui: &egui::Ui, label: &str, icon: bool) -> f32 {
+    let label = crate::fork::i18n::tr(label);
     let galley = ui
         .painter()
         .layout_no_wrap(label.to_owned(), medium(13.0), Color32::WHITE);
@@ -873,6 +878,7 @@ pub fn text(
     font: egui::FontId,
     color: Color32,
 ) -> Response {
+    let text = crate::fork::i18n::tr_string(text.into());
     ui.add(
         egui::Label::new(egui::RichText::new(text).font(font).color(color))
             .truncate()
@@ -897,6 +903,7 @@ pub fn paragraph(
     font: egui::FontId,
     color: Color32,
 ) -> Response {
+    let text = crate::fork::i18n::tr_string(text.into());
     ui.add(
         egui::Label::new(egui::RichText::new(text).font(font).color(color))
             .wrap()
@@ -911,6 +918,7 @@ pub fn link(
     font: egui::FontId,
     color: Color32,
 ) -> Response {
+    let text = crate::fork::i18n::tr_string(text.into());
     let response = ui.add(
         egui::Label::new(egui::RichText::new(text).font(font).color(color))
             .truncate()

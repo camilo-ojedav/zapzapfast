@@ -306,7 +306,7 @@ pub fn menu_width(ui: &Ui, labels: &[&str], icons: bool) -> f32 {
         .iter()
         .map(|label| {
             ui.painter()
-                .layout_no_wrap(label.to_string(), theme::regular(13.5), Color32::WHITE)
+                .layout_no_wrap(crate::fork::i18n::tr(label).to_owned(), theme::regular(13.5), Color32::WHITE)
                 .size()
                 .x
         })
@@ -325,6 +325,7 @@ pub fn submenu<R>(
     label: &str,
     add_contents: impl FnOnce(&mut Ui) -> R,
 ) -> Option<egui::InnerResponse<R>> {
+    let label = crate::fork::i18n::tr(label);
     let width = ui.available_width();
     let (rect, response) = ui.allocate_exact_size(vec2(width, 28.0), Sense::click());
     theme::reveal_focus(&response);
@@ -383,6 +384,7 @@ pub fn menu_item_enabled(
     label: &str,
     enabled: bool,
 ) -> bool {
+    let label = crate::fork::i18n::tr(label);
     let width = ui.available_width();
     let (rect, response) = ui.allocate_exact_size(
         vec2(width, 28.0),
@@ -470,6 +472,7 @@ pub fn menu_frame(palette: &Palette) -> egui::Frame {
 }
 
 pub fn empty_state(ui: &mut Ui, palette: &Palette, icon: Icon, title: &str, body: &str) {
+    let (title, body) = (crate::fork::i18n::tr(title), crate::fork::i18n::tr(body));
     ui.add_space(48.0);
     ui.vertical_centered(|ui| {
         theme::icon(ui, icon, 40.0, palette.dim);
@@ -497,6 +500,7 @@ pub fn search_field(
     hint: &str,
     width: f32,
 ) -> egui::Response {
+    let hint = crate::fork::i18n::tr(hint);
     let height = 34.0;
     let (rect, _) = ui.allocate_exact_size(vec2(width, height), Sense::hover());
     let has_focus = ui.memory(|memory| memory.has_focus(id));
@@ -655,6 +659,7 @@ pub fn setting_row(
     description: &str,
     control: impl FnOnce(&mut Ui),
 ) {
+    let (label, description) = (crate::fork::i18n::tr(label), crate::fork::i18n::tr(description));
     ui.horizontal(|ui| {
         ui.vertical(|ui| {
             ui.set_width((ui.available_width() - 260.0).max(120.0));
@@ -692,6 +697,7 @@ pub fn paint_vertical_gradient(ui: &Ui, rect: Rect, top: Color32, bottom: Color3
 
 /// Small pill label used for date separators and pinned markers.
 pub fn chip(ui: &mut Ui, palette: &Palette, label: &str) -> egui::Response {
+    let label = crate::fork::i18n::tr(label);
     let galley =
         ui.painter()
             .layout_no_wrap(label.to_owned(), theme::medium(12.0), palette.secondary);

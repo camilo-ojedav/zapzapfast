@@ -276,6 +276,7 @@ pub const SHORTCUTS: &[(&str, &str)] = &[
 
 /// Uses Command and Option labels on macOS.
 pub fn label(keys: &str) -> String {
+    let keys = crate::fork::i18n::tr(keys);
     if cfg!(target_os = "macos") {
         keys.replace("Ctrl", "⌘").replace("Alt", "⌥")
     } else {

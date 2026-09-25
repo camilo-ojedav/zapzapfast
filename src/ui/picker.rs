@@ -556,7 +556,7 @@ fn category_tabs(
                 }
                 if response
                     .on_hover_cursor(egui::CursorIcon::PointingHand)
-                    .on_hover_text(label)
+                    .on_hover_text(crate::fork::i18n::tr(label))
                     .clicked()
                 {
                     app.picker_search.clear();
@@ -717,7 +717,7 @@ fn emoji_grid(
                     ui.painter().text(
                         pos2(rect.left() + 4.0, rect.bottom() - 8.0),
                         Align2::LEFT_BOTTOM,
-                        *label,
+                        crate::fork::i18n::tr(label),
                         theme::semibold(12.5),
                         palette.secondary,
                     );

@@ -34,7 +34,7 @@ pub fn create(app: &mut App, ui: &mut egui::Ui, chat: &str) {
         ui.add(
             egui::TextEdit::singleline(&mut app.poll_draft.question)
                 .id_salt("poll-question")
-                .hint_text("Ask a question")
+                .hint_text(crate::fork::i18n::tr("Ask a question"))
                 .char_limit(255)
                 .font(theme::regular(14.0))
                 .desired_width(f32::INFINITY)
@@ -66,7 +66,7 @@ pub fn create(app: &mut App, ui: &mut egui::Ui, chat: &str) {
                         ui.add(
                             egui::TextEdit::singleline(answer)
                                 .id_salt(("poll-answer", index))
-                                .hint_text(format!("Answer {}", index + 1))
+                                .hint_text(crate::fork::i18n::tr_string(format!("Answer {}", index + 1)))
                                 .char_limit(100)
                                 .font(theme::regular(14.0))
                                 .desired_width(width)
@@ -281,18 +281,18 @@ pub fn ballot(
                 }
             }
             let detail = if pending {
-                "Sending vote…".to_owned()
+                crate::fork::i18n::tr("Sending vote…").to_owned()
             } else if state.refresh_failed {
-                "Waiting for your phone · earlier votes may be missing".into()
+                crate::fork::i18n::tr("Waiting for your phone · earlier votes may be missing").into()
             } else if state.refreshing && !state.history_complete {
-                "Loading earlier votes from your phone…".into()
+                crate::fork::i18n::tr("Loading earlier votes from your phone…").into()
             } else if !state.history_complete {
-                "Earlier votes have not been loaded yet".into()
+                crate::fork::i18n::tr("Earlier votes have not been loaded yet").into()
             } else {
                 format!(
                     "{} {}",
                     state.voters,
-                    if state.voters == 1 { "voter" } else { "voters" }
+                    if state.voters == 1 { crate::fork::i18n::tr("voter") } else { crate::fork::i18n::tr("voters") }
                 )
             };
             let line = widgets::line(
@@ -310,7 +310,7 @@ pub fn ballot(
             if !state.can_vote {
                 widgets::rich_text(
                     ui,
-                    "Voting key unavailable · use your phone",
+                    crate::fork::i18n::tr("Voting key unavailable · use your phone"),
                     theme::regular(11.0),
                     palette.dim,
                 );
@@ -381,7 +381,7 @@ pub fn results_button(
     ui.painter().text(
         rect.center(),
         egui::Align2::CENTER_CENTER,
-        "Show votes",
+        crate::fork::i18n::tr("Show votes"),
         theme::medium(13.5),
         if enabled {
             palette.link
@@ -422,7 +422,7 @@ pub fn results(app: &mut App, ui: &mut egui::Ui, chat: &str, id: &str) {
     else {
         widgets::rich_text(
             ui,
-            "This poll is no longer available.",
+            crate::fork::i18n::tr("This poll is no longer available."),
             theme::regular(14.0),
             palette.secondary,
         );
@@ -441,7 +441,7 @@ pub fn results(app: &mut App, ui: &mut egui::Ui, chat: &str, id: &str) {
     if !state.history_complete {
         widgets::rich_text(
             ui,
-            "Earlier votes may still be missing. Results update as they arrive.",
+            crate::fork::i18n::tr("Earlier votes may still be missing. Results update as they arrive."),
             theme::regular(12.0),
             palette.secondary,
         );

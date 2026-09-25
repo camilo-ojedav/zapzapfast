@@ -634,7 +634,7 @@ impl Content {
         };
         match self {
             Self::Text { text, .. } | Self::Interactive { text, .. } => text.clone(),
-            Self::Image { caption, .. } => captioned("Photo", caption),
+            Self::Image { caption, .. } => captioned(crate::fork::i18n::tr("Photo"), caption),
             Self::Video {
                 caption, gif, note, ..
             } => captioned(video_label(*gif, *note), caption),
@@ -647,7 +647,7 @@ impl Content {
             Self::Text { text, .. } | Self::Interactive { text, .. } => {
                 text.lines().next().unwrap_or_default().to_owned()
             }
-            Self::Image { caption, .. } => with_caption("Photo", caption),
+            Self::Image { caption, .. } => with_caption(crate::fork::i18n::tr("Photo"), caption),
             Self::Video {
                 caption, gif, note, ..
             } => with_caption(video_label(*gif, *note), caption),
@@ -657,41 +657,41 @@ impl Content {
                 ..
             } => {
                 let label = if *voice_note {
-                    "Voice message"
+                    crate::fork::i18n::tr("Voice message")
                 } else {
-                    "Audio"
+                    crate::fork::i18n::tr("Audio")
                 };
                 match seconds {
                     Some(seconds) => format!("{label} ({})", crate::util::duration(*seconds)),
                     None => label.to_owned(),
                 }
             }
-            Self::Document { file_name, .. } => format!("Document: {file_name}"),
-            Self::Sticker { .. } => "Sticker".to_owned(),
-            Self::StickerPack { name, .. } => format!("Sticker pack: {name}"),
+            Self::Document { file_name, .. } => format!("{} {file_name}", crate::fork::i18n::tr("Document:")),
+            Self::Sticker { .. } => crate::fork::i18n::tr("Sticker").to_owned(),
+            Self::StickerPack { name, .. } => format!("{} {name}", crate::fork::i18n::tr("Sticker pack:")),
             Self::Location { name, .. } => match name {
-                Some(name) => format!("Location: {name}"),
-                None => "Location".to_owned(),
+                Some(name) => format!("{} {name}", crate::fork::i18n::tr("Location:")),
+                None => crate::fork::i18n::tr("Location").to_owned(),
             },
             Self::LiveLocation { ended, .. } => {
                 if *ended {
-                    "Live location ended".to_owned()
+                    crate::fork::i18n::tr("Live location ended").to_owned()
                 } else {
-                    "Live location".to_owned()
+                    crate::fork::i18n::tr("Live location").to_owned()
                 }
             }
-            Self::Contact { display_name, .. } => format!("Contact: {display_name}"),
-            Self::Poll { question, .. } => format!("Poll: {question}"),
-            Self::Revoked => "This message was deleted".to_owned(),
-            Self::Unsupported { what } => format!("Unsupported message ({what})"),
+            Self::Contact { display_name, .. } => format!("{} {display_name}", crate::fork::i18n::tr("Contact:")),
+            Self::Poll { question, .. } => format!("{} {question}", crate::fork::i18n::tr("Poll:")),
+            Self::Revoked => crate::fork::i18n::tr("This message was deleted").to_owned(),
+            Self::Unsupported { what } => crate::fork::i18n::tr_string(format!("Unsupported message ({what})")),
             Self::PhoneOnly {
                 live_location: true,
                 ..
-            } => "Live location".to_owned(),
+            } => crate::fork::i18n::tr("Live location").to_owned(),
             Self::PhoneOnly {
                 view_once: true, ..
-            } => "View once message".to_owned(),
-            Self::PhoneOnly { .. } => "Message on your phone".to_owned(),
+            } => crate::fork::i18n::tr("View once message").to_owned(),
+            Self::PhoneOnly { .. } => crate::fork::i18n::tr("Message on your phone").to_owned(),
         }
     }
 
@@ -769,9 +769,9 @@ fn video_label(gif: bool, note: bool) -> &'static str {
     if gif {
         "GIF"
     } else if note {
-        "Video message"
+        crate::fork::i18n::tr("Video message")
     } else {
-        "Video"
+        crate::fork::i18n::tr("Video")
     }
 }
 

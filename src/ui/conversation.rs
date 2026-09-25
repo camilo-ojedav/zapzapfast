@@ -72,9 +72,9 @@ fn empty(app: &mut App, ui: &mut egui::Ui) {
         center + vec2(0.0, 30.0),
         Align2::CENTER_CENTER,
         if app.chats.is_empty() {
-            "Your chats appear on the left as they load."
+            crate::fork::i18n::tr("Your chats appear on the left as they load.")
         } else {
-            "Select a chat on the left."
+            crate::fork::i18n::tr("Select a chat on the left.")
         },
         theme::regular(14.0),
         palette.secondary,
@@ -342,11 +342,13 @@ fn subtitle(app: &App, chat: &Chat) -> (String, Color32) {
             let names: Vec<&str> = typing.iter().map(|(_, name)| name.as_str()).collect();
             match names.as_slice() {
                 [] => String::new(),
-                [one] => format!("{one} is typing…"),
-                [rest @ .., last] => format!("{} and {last} are typing…", rest.join(", ")),
+                [one] => crate::fork::i18n::tr_string(format!("{one} is typing…")),
+                [rest @ .., last] => {
+                    crate::fork::i18n::tr_string(format!("{} and {last} are typing…", rest.join(", ")))
+                }
             }
         } else {
-            "typing…".to_owned()
+            crate::fork::i18n::tr("typing…").to_owned()
         };
         return (text, palette.accent);
     }
@@ -354,7 +356,7 @@ fn subtitle(app: &App, chat: &Chat) -> (String, Color32) {
         let names = app.participant_names(chat);
         return (
             if names.is_empty() {
-                "Group".to_owned()
+                crate::fork::i18n::tr("Group").to_owned()
             } else {
                 names
             },
@@ -363,12 +365,12 @@ fn subtitle(app: &App, chat: &Chat) -> (String, Color32) {
     }
     if let Some(presence) = app.presence.get(&chat.id) {
         if presence.online {
-            return ("online".to_owned(), palette.accent);
+            return (crate::fork::i18n::tr("online").to_owned(), palette.accent);
         }
         if let Some(seen) = presence.last_seen {
             return (
                 format!(
-                    "last seen {}",
+                    "{} {}", crate::fork::i18n::tr("last seen"),
                     crate::util::chat_stamp(app.locale, seen).to_lowercase()
                 ),
                 palette.secondary,
@@ -1476,7 +1478,7 @@ fn edit_strip(app: &mut App, ui: &mut egui::Ui) {
 fn reply_strip(app: &mut App, ui: &mut egui::Ui, quoted: &Message) {
     let palette = app.palette;
     let who = if quoted.from_me {
-        "You".to_owned()
+        crate::fork::i18n::tr("You").to_owned()
     } else {
         app.display_name_or(&quoted.sender, quoted.sender_name.as_deref())
     };
@@ -1495,7 +1497,7 @@ fn reply_strip(app: &mut App, ui: &mut egui::Ui, quoted: &Message) {
                     ui.set_max_width((ui.available_width() - 40.0).max(0.0));
                     widgets::rich_text(
                         ui,
-                        &format!("Replying to {who}"),
+                        &crate::fork::i18n::tr_string(format!("Replying to {who}")),
                         theme::semibold(12.5),
                         palette.accent,
                     );
@@ -2316,7 +2318,7 @@ fn reaction_affordance(
     }
     if response
         .on_hover_cursor(egui::CursorIcon::PointingHand)
-        .on_hover_text("React")
+        .on_hover_text(crate::fork::i18n::tr("React"))
         .clicked()
     {
         actions.push(open_reaction_picker_action(&view.chat.id, &message.id));
@@ -2353,7 +2355,7 @@ fn reaction_affordance(
     }
     if reply
         .on_hover_cursor(egui::CursorIcon::PointingHand)
-        .on_hover_text("Reply")
+        .on_hover_text(crate::fork::i18n::tr("Reply"))
         .clicked()
     {
         actions.push(Action::Reply(message.id.clone()));
@@ -2826,7 +2828,7 @@ fn bubble_frame(
                     |ui| {
                         ui.add(
                             egui::Label::new(
-                                egui::RichText::new("Forwarded")
+                                egui::RichText::new(crate::fork::i18n::tr("Forwarded"))
                                     .font(theme::regular(12.5))
                                     .italics()
                                     .color(palette.dim),
@@ -3100,7 +3102,7 @@ fn quote_block(
     let palette = view.palette;
     let mine = view.me == Some(quoted.sender.as_str());
     let who = if mine {
-        "You".to_owned()
+        crate::fork::i18n::tr("You").to_owned()
     } else {
         (view.names_or)(&quoted.sender, quoted.sender_name.as_deref())
     };
@@ -3218,7 +3220,7 @@ fn footer_width(ui: &egui::Ui, message: &Message) -> f32 {
     };
     let not_sent = if not_sent(message) {
         ui.painter()
-            .layout_no_wrap(NOT_SENT.to_owned(), theme::medium(11.0), Color32::WHITE)
+            .layout_no_wrap(crate::fork::i18n::tr(NOT_SENT).to_owned(), theme::medium(11.0), Color32::WHITE)
             .size()
             .x
             + 6.0
@@ -3249,7 +3251,7 @@ fn footer(ui: &mut egui::Ui, palette: &Palette, message: &Message, slot: Option<
     // to read, and the red icon beside it already carries the alarm.
     let failed = not_sent(message).then(|| {
         ui.painter()
-            .layout_no_wrap(NOT_SENT.to_owned(), theme::medium(11.0), palette.text)
+            .layout_no_wrap(crate::fork::i18n::tr(NOT_SENT).to_owned(), theme::medium(11.0), palette.text)
     });
     let tick_width = if message.from_me { 19.0 } else { 0.0 };
     let width = time.size().x
@@ -3302,7 +3304,7 @@ fn footer(ui: &mut egui::Ui, palette: &Palette, message: &Message, slot: Option<
         response.widget_info(|| {
             egui::WidgetInfo::labeled(egui::WidgetType::Label, true, NOT_SENT_HINT)
         });
-        response.on_hover_text(NOT_SENT_HINT);
+        response.on_hover_text(crate::fork::i18n::tr(NOT_SENT_HINT));
     }
 }
 
@@ -3311,7 +3313,7 @@ fn reactions(ui: &mut egui::Ui, view: &View<'_>, message: &Message, actions: &mu
     let mut counts: Vec<(String, u32, bool, Vec<String>)> = Vec::new();
     for reaction in &message.reactions {
         let who = if reaction.from_me {
-            "You".to_owned()
+            crate::fork::i18n::tr("You").to_owned()
         } else {
             (view.names_or)(&reaction.sender, None)
         };
@@ -3434,7 +3436,7 @@ fn context_menu(ui: &mut egui::Ui, view: &View<'_>, message: &Message, actions: 
                 line.paint(ui, rect.center() - line.size() / 2.0, palette.text);
                 let response = response.on_hover_cursor(egui::CursorIcon::PointingHand);
                 let response = if chosen {
-                    response.on_hover_text("Remove your reaction")
+                    response.on_hover_text(crate::fork::i18n::tr("Remove your reaction"))
                 } else {
                     response
                 };
@@ -3467,7 +3469,7 @@ fn context_menu(ui: &mut egui::Ui, view: &View<'_>, message: &Message, actions: 
             }
             if response
                 .on_hover_cursor(egui::CursorIcon::PointingHand)
-                .on_hover_text("React with any emoji")
+                .on_hover_text(crate::fork::i18n::tr("React with any emoji"))
                 .clicked()
             {
                 actions.push(Action::OpenReactionPicker {
@@ -3698,7 +3700,7 @@ fn content(
                 }
             }
             let body = if card.body.is_empty() {
-                "Interactive message"
+                crate::fork::i18n::tr("Interactive message")
             } else {
                 &card.body
             };
@@ -4356,7 +4358,7 @@ fn carousel_picture(
                 ui.painter().text(
                     rect.center() + vec2(0.0, 24.0),
                     Align2::CENTER_CENTER,
-                    "Could not display this picture. Click to open it.",
+                    crate::fork::i18n::tr("Could not display this picture. Click to open it."),
                     theme::regular(11.5),
                     view.palette.secondary,
                 );
@@ -4373,7 +4375,7 @@ fn carousel_picture(
                     ui.painter().text(
                         rect.center() + vec2(0.0, 34.0),
                         Align2::CENTER_CENTER,
-                        "Download failed. Click to retry.",
+                        crate::fork::i18n::tr("Download failed. Click to retry."),
                         theme::regular(11.5),
                         Color32::WHITE,
                     );
@@ -4571,15 +4573,15 @@ fn interactive_buttons(
                     .interactive_pending
                     .contains(&(message.chat.clone(), message.id.clone()))
             {
-                "Sending reply…"
+                crate::fork::i18n::tr("Sending reply…")
             } else if sends && !view.connected {
-                "Connect to WhatsApp to reply"
+                crate::fork::i18n::tr("Connect to WhatsApp to reply")
             } else if sends && !view.chat.can_send() {
-                "This conversation is read-only"
+                crate::fork::i18n::tr("This conversation is read-only")
             } else if sends && message.from_me {
-                "Reply options are for the recipient"
+                crate::fork::i18n::tr("Reply options are for the recipient")
             } else {
-                "Open this option in WhatsApp Web or on your phone"
+                crate::fork::i18n::tr("Open this option in WhatsApp Web or on your phone")
             };
             response.on_hover_text(format!("{}\n{reason}", button.label));
         } else if let Some(url) = &button.url {
@@ -4595,14 +4597,14 @@ fn interactive_buttons(
             match &button.action {
                 InteractiveAction::Reply => {
                     if response
-                        .on_hover_text(format!("Send reply: {}", button.label))
+                        .on_hover_text(crate::fork::i18n::tr_string(format!("Send reply: {}", button.label)))
                         .clicked()
                     {
                         actions.push(reply(None));
                     }
                 }
                 InteractiveAction::Copy(code) => {
-                    if response.on_hover_text("Copy code").clicked() {
+                    if response.on_hover_text(crate::fork::i18n::tr("Copy code")).clicked() {
                         actions.push(Action::CopyText(code.clone()));
                     }
                 }
@@ -4623,7 +4625,7 @@ fn interactive_buttons(
         ui.add_space(6.0);
         widgets::rich_text(
             ui,
-            "More content in WhatsApp Web or on your phone",
+            crate::fork::i18n::tr("More content in WhatsApp Web or on your phone"),
             theme::regular(12.0),
             palette.secondary,
         );
@@ -5063,7 +5065,7 @@ fn picture(
                     ui.painter().text(
                         rect.center() + vec2(0.0, 24.0),
                         Align2::CENTER_CENTER,
-                        "Could not display this picture. Click to open it.",
+                        crate::fork::i18n::tr("Could not display this picture. Click to open it."),
                         theme::regular(11.5),
                         palette.secondary,
                     );
@@ -5110,7 +5112,7 @@ fn picture(
                 ui.painter().text(
                     rect.center() + vec2(0.0, 34.0),
                     Align2::CENTER_CENTER,
-                    "Download failed. Click to retry.",
+                    crate::fork::i18n::tr("Download failed. Click to retry."),
                     theme::regular(11.5),
                     Color32::WHITE,
                 );
@@ -5180,7 +5182,7 @@ fn video(
     use crate::video::State;
     let palette = view.palette;
     let Some(thumbnail) = message.thumbnail.as_deref() else {
-        let title = if gif { "GIF" } else { "Video" };
+        let title = if gif { "GIF" } else { crate::fork::i18n::tr("Video") };
         let mut detail = Vec::new();
         if let Some(seconds) = seconds {
             detail.push(crate::util::duration(seconds));
@@ -5972,9 +5974,9 @@ fn voice_player(
                     )));
                 }
                 response.on_hover_text(if preparing {
-                    "Preparing playback speed"
+                    crate::fork::i18n::tr("Preparing playback speed")
                 } else {
-                    "Playback speed. Right-click for every speed."
+                    crate::fork::i18n::tr("Playback speed. Right-click for every speed.")
                 });
             }
         },

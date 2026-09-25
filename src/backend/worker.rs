@@ -1743,7 +1743,7 @@ impl Worker {
     /// Resolves a name for a quote or mention.
     fn name_for(&self, id: &str) -> Option<String> {
         if self.is_me(id) || id == self.me() {
-            return Some("You".to_owned());
+            return Some(crate::fork::i18n::tr("You").to_owned());
         }
         if let Some(name) = self.contact_name(id) {
             return Some(name);
@@ -1754,7 +1754,7 @@ impl Worker {
     /// Returns the best current chat name.
     fn chat_name(&self, id: &str, push_name: Option<&str>) -> String {
         if id == self.me() {
-            return "You".to_owned();
+            return crate::fork::i18n::tr("You").to_owned();
         }
         if let Some(name) = self
             .contacts
@@ -4120,7 +4120,7 @@ impl Worker {
                 let commands = self.commands.clone();
                 tokio::task::spawn_blocking(move || {
                     let paths = rfd::FileDialog::new()
-                        .set_title("Send to WhatsApp")
+                        .set_title(crate::fork::i18n::tr("Send to WhatsApp"))
                         .pick_files()
                         .unwrap_or_default();
                     let _ = commands.send(Command::Picked { chat, paths });
@@ -4194,8 +4194,8 @@ impl Worker {
                 let waker = self.waker.clone();
                 tokio::task::spawn_blocking(move || {
                     if let Some(path) = rfd::FileDialog::new()
-                        .set_title("Choose a notification sound")
-                        .add_filter("Audio", &["wav", "mp3", "ogg", "oga"])
+                        .set_title(crate::fork::i18n::tr("Choose a notification sound"))
+                        .add_filter(crate::fork::i18n::tr("Audio"), &[crate::fork::i18n::tr("wav"), crate::fork::i18n::tr("mp3"), crate::fork::i18n::tr("ogg"), crate::fork::i18n::tr("oga")])
                         .pick_file()
                     {
                         let _ = events.send(Event::ChatSoundPicked { chat, path });
@@ -4208,7 +4208,7 @@ impl Worker {
                 let waker = self.waker.clone();
                 tokio::task::spawn_blocking(move || {
                     if let Some(path) = rfd::FileDialog::new()
-                        .set_title("Choose a folder for downloads")
+                        .set_title(crate::fork::i18n::tr("Choose a folder for downloads"))
                         .pick_folder()
                     {
                         let _ = events.send(Event::DownloadFolderPicked(path));
@@ -4223,8 +4223,8 @@ impl Worker {
                 let waker = self.waker.clone();
                 tokio::task::spawn_blocking(move || {
                     let Some(path) = rfd::FileDialog::new()
-                        .set_title("Choose a profile picture")
-                        .add_filter("Images", &["jpg", "jpeg", "png", "webp", "gif"])
+                        .set_title(crate::fork::i18n::tr("Choose a profile picture"))
+                        .add_filter(crate::fork::i18n::tr("Images"), &[crate::fork::i18n::tr("jpg"), crate::fork::i18n::tr("jpeg"), crate::fork::i18n::tr("png"), crate::fork::i18n::tr("webp"), crate::fork::i18n::tr("gif")])
                         .pick_file()
                     else {
                         return;
@@ -4296,8 +4296,8 @@ impl Worker {
                 let waker = self.waker.clone();
                 tokio::task::spawn_blocking(move || {
                     if let Some(path) = rfd::FileDialog::new()
-                        .set_title("Choose a notification sound")
-                        .add_filter("Audio", &["wav", "mp3", "ogg", "oga"])
+                        .set_title(crate::fork::i18n::tr("Choose a notification sound"))
+                        .add_filter(crate::fork::i18n::tr("Audio"), &[crate::fork::i18n::tr("wav"), crate::fork::i18n::tr("mp3"), crate::fork::i18n::tr("ogg"), crate::fork::i18n::tr("oga")])
                         .pick_file()
                     {
                         let _ = events.send(Event::NotificationSoundPicked { mention, path });
@@ -4310,7 +4310,7 @@ impl Worker {
                 let waker = self.waker.clone();
                 tokio::task::spawn_blocking(move || {
                     let mut dialog = rfd::FileDialog::new()
-                        .set_title("Save attachment")
+                        .set_title(crate::fork::i18n::tr("Save attachment"))
                         .set_file_name(&name);
                     if let Some(downloads) = directories::UserDirs::new()
                         .and_then(|dirs| dirs.download_dir().map(Path::to_path_buf))
@@ -4341,8 +4341,8 @@ impl Worker {
                 let commands = self.commands.clone();
                 tokio::task::spawn_blocking(move || {
                     let result = match rfd::FileDialog::new()
-                        .set_title("Make a sticker")
-                        .add_filter("Pictures", &["png", "jpg", "jpeg", "webp", "gif"])
+                        .set_title(crate::fork::i18n::tr("Make a sticker"))
+                        .add_filter(crate::fork::i18n::tr("Pictures"), &[crate::fork::i18n::tr("png"), crate::fork::i18n::tr("jpg"), crate::fork::i18n::tr("jpeg"), crate::fork::i18n::tr("webp"), crate::fork::i18n::tr("gif")])
                         .pick_file()
                     {
                         Some(path) => std::fs::read(&path)
@@ -4405,8 +4405,8 @@ impl Worker {
                 let packs = self.packs_dir();
                 tokio::task::spawn_blocking(move || {
                     let result = match rfd::FileDialog::new()
-                        .set_title("Add a sticker pack")
-                        .add_filter("Sticker packs", &["wastickers", "zip"])
+                        .set_title(crate::fork::i18n::tr("Add a sticker pack"))
+                        .add_filter(crate::fork::i18n::tr("Sticker packs"), &[crate::fork::i18n::tr("wastickers"), crate::fork::i18n::tr("zip")])
                         .pick_file()
                     {
                         Some(path) => super::sticker_import::import_archive(&path, &packs),
@@ -5223,7 +5223,7 @@ impl Worker {
             mentions: row.mentions.clone(),
             id: row.id,
             sender_name: if row.from_me {
-                Some("You".to_owned())
+                Some(crate::fork::i18n::tr("You").to_owned())
             } else {
                 row.sender_name
                     .clone()

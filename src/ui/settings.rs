@@ -28,7 +28,7 @@ struct Text {
 impl From<&'static str> for Text {
     fn from(text: &'static str) -> Self {
         Self {
-            shown: text.into(),
+            shown: crate::fork::i18n::tr(text).into(),
             source: text.into(),
         }
     }
@@ -38,7 +38,7 @@ impl From<String> for Text {
     fn from(text: String) -> Self {
         Self {
             source: text.clone().into(),
-            shown: text.into(),
+            shown: crate::fork::i18n::tr_string(text).into(),
         }
     }
 }
@@ -417,14 +417,14 @@ fn sections(app: &App) -> Vec<Section> {
                     .font(theme::regular(13.0))
                     .text_color(palette.text)
                     .desired_width(220.0)
-                    .hint_text("Secret code")
+                    .hint_text(crate::fork::i18n::tr("Secret code"))
                     .password(true),
             );
             if response.changed() {
                 let trimmed = code.trim().to_owned();
                 app.actions.push(Action::SetChatLockCode(Some(trimmed)));
             }
-            if app.settings.chat_lock_code_hash.is_some() && ui.small_button("Clear").clicked() {
+            if app.settings.chat_lock_code_hash.is_some() && ui.small_button(crate::fork::i18n::tr("Clear")).clicked() {
                 code.clear();
                 app.actions.push(Action::SetChatLockCode(None));
             }
@@ -741,7 +741,7 @@ fn theme_picker(ui: &mut egui::Ui, app: &mut App) {
         let rect = response.response.rect;
         let text = widgets::line(
             ui,
-            selected,
+            crate::fork::i18n::tr(selected),
             theme::regular(14.0),
             palette.text,
             rect.width() - 36.0,
@@ -927,7 +927,7 @@ pub fn wallpaper_show(app: &mut App, ui: &mut egui::Ui) {
                     ui.painter().text(
                         header.center(),
                         egui::Align2::CENTER_CENTER,
-                        "Wallpaper preview",
+                        crate::fork::i18n::tr("Wallpaper preview"),
                         theme::bold(18.0),
                         palette.text,
                     );
@@ -1307,7 +1307,7 @@ fn sound_control(ui: &mut egui::Ui, app: &mut App, mention: bool) {
     ];
     let selected = match &current {
         NotificationSound::Custom(path) => path.file_name().map_or_else(
-            || "Custom".to_owned(),
+            || crate::fork::i18n::tr("Custom").to_owned(),
             |name| name.to_string_lossy().into_owned(),
         ),
         sound => choices
@@ -1407,6 +1407,7 @@ fn privacy_control(ui: &mut egui::Ui, app: &mut App, kind: PrivacyKind) {
 
 /// Theme filenames can contain emoji, so paint them through the shared line renderer.
 fn theme_option(ui: &mut egui::Ui, palette: &theme::Palette, text: &str, selected: bool) -> bool {
+    let text = crate::fork::i18n::tr(text);
     let response = ui.add(
         egui::Button::selectable(selected, " ").min_size(egui::vec2(ui.available_width(), 28.0)),
     );

@@ -113,6 +113,7 @@ pub fn resolve(interface_language: Option<Locale>) -> Locale {
 
 /// The English source is also the fallback for untranslated messages.
 pub fn gettext(locale: Locale, source: &'static str) -> Cow<'static, str> {
+    if let Some(text) = crate::fork::i18n::spanish(locale, source) { return text.into(); }
     locale
         .translator()
         .map_or(Cow::Borrowed(source), |catalog| {

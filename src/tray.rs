@@ -62,14 +62,14 @@ impl ksni::Tray for FastTray {
         use ksni::menu::*;
         vec![
             StandardItem {
-                label: "Show or hide ZapFast".into(),
+                label: crate::fork::i18n::tr("Show or hide ZapFast").into(),
                 activate: Box::new(|tray: &mut Self| tray.send(TrayCommand::ShowHide)),
                 ..Default::default()
             }
             .into(),
             MenuItem::Separator,
             StandardItem {
-                label: "Quit".into(),
+                label: crate::fork::i18n::tr("Quit").into(),
                 activate: Box::new(|tray: &mut Self| tray.send(TrayCommand::Quit)),
                 ..Default::default()
             }

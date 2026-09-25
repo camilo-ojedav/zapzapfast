@@ -85,7 +85,7 @@ fn header(app: &mut App, ui: &mut egui::Ui) {
                     );
                 } else {
                     let me = app.me.clone().unwrap_or_default();
-                    let name = app.me_name.clone().unwrap_or_else(|| "You".to_owned());
+                    let name = app.me_name.clone().unwrap_or_else(|| crate::fork::i18n::tr("You").to_owned());
                     let picture = app.avatar(&me);
                     let tooltip = match &app.me_about {
                         Some(about) => format!("{name}\n{about}"),
@@ -389,7 +389,7 @@ fn filter_chips(app: &mut App, ui: &mut egui::Ui) {
                         selected,
                     )
                     .tab_stop(Stop::Locked)
-                    .on_hover_text("Open locked chats with your local code");
+                    .on_hover_text(crate::fork::i18n::tr("Open locked chats with your local code"));
                     ui.ctx()
                         .data_mut(|data| data.insert_temp(egui::Id::new("locked-chip"), chip.rect));
                     if chip.clicked() {
@@ -517,7 +517,7 @@ fn locked_entry(app: &mut App, ui: &mut egui::Ui) {
         ui.painter().text(
             pos2(rect.left() + 76.0, rect.center().y),
             egui::Align2::LEFT_CENTER,
-            "Locked chats",
+            crate::fork::i18n::tr("Locked chats"),
             theme::medium(14.5),
             palette.text,
         );
@@ -707,7 +707,7 @@ fn hit_row(app: &mut App, ui: &mut egui::Ui, hit: &Message) {
         if hit.from_me {
             let who = widgets::line(
                 ui,
-                "You: ",
+                crate::fork::i18n::tr("You: "),
                 theme::regular(13.0),
                 palette.dim,
                 (right - x) * 0.5,
@@ -938,9 +938,9 @@ fn row(app: &mut App, ui: &mut egui::Ui, chat: &Chat) -> egui::Response {
         };
         let preview = if !typing.is_empty() {
             let who = if chat.is_group() {
-                format!("{} is typing…", typing[0].1.trim_start_matches('~'))
+                crate::fork::i18n::tr_string(format!("{} is typing…", typing[0].1.trim_start_matches('~')))
             } else {
-                "typing…".to_owned()
+                crate::fork::i18n::tr("typing…").to_owned()
             };
             widgets::line(
                 ui,
@@ -1254,7 +1254,7 @@ fn compact_locked_entry(app: &mut App, ui: &mut egui::Ui) {
         .data_mut(|data| data.insert_temp(compact_locked_id(), response.rect));
     if response
         .on_hover_cursor(egui::CursorIcon::PointingHand)
-        .on_hover_text("Locked chats")
+        .on_hover_text(crate::fork::i18n::tr("Locked chats"))
         .clicked()
     {
         app.actions.push(Action::OpenLockedFolder);

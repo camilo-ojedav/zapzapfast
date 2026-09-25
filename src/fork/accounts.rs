@@ -21,6 +21,7 @@
 //!   Swapping the memory on a switch keeps every upstream view untouched,
 //!   instead of scoping each of its ids by hand.
 
+use super::i18n::tr;
 use crate::app::{App, AppOptions};
 use crate::backend::Waker;
 use crate::paths::AppDirs;
@@ -127,16 +128,19 @@ impl Accounts {
             .iter()
             .any(|a| a.profile.as_deref() == Some(&name))
         {
-            return Err(format!("`{name}` is already open here"));
+            return Err(tr("`{}` is already open here").replace("{}", &name));
         }
-        let (waker, base) = self.link.as_ref().ok_or("no accounts can be linked here")?;
+        let (waker, base) = self
+            .link
+            .as_ref()
+            .ok_or(tr("no accounts can be linked here"))?;
         let dirs = super::profiles::dirs(base, &name);
         let guard = match single_instance::acquire(&dirs.runtime, waker, "show") {
             single_instance::Outcome::Only(guard) => guard,
-            _ => return Err(format!("`{name}` is already open in another window")),
+            _ => return Err(tr("`{}` is already open in another window").replace("{}", &name)),
         };
         dirs.ensure()
-            .map_err(|error| format!("could not create its directories: {error}"))?;
+            .map_err(|error| format!("{} {error}", tr("could not create its directories:")))?;
         let settings = Settings::load(&dirs.settings_file());
         let mut app = App::new(waker, dirs, settings, AppOptions { tray: false });
         app.set_remote_control(&guard);
@@ -187,6 +191,7 @@ impl Accounts {
     /// Runs every account, the one on screen last, and gathers what the
     /// others asked of the window into the one `main` reads.
     pub fn background_frame(&mut self, ctx: &egui::Context) {
+        super::i18n::show(self.accounts[self.current].app.locale);
         if let Some(next) = self.pending.take() {
             self.switch(ctx, next);
         }
@@ -226,6 +231,7 @@ impl Accounts {
     /// Draws the rail, then the account on screen.
     pub fn frame_ui(&mut self, ui: &mut egui::Ui) {
         let ctx = ui.ctx().clone();
+        super::i18n::show(self.accounts[self.current].app.locale);
         if self.link.is_some() {
             self.rail(ui);
         }
@@ -309,7 +315,7 @@ impl Accounts {
                             chosen = Some(index);
                         }
                         response.context_menu(|ui| {
-                            if ui.button("Edit name and icon…").clicked() {
+                            if ui.button(tr("Edit name and icon…")).clicked() {
                                 edit = Some(index);
                                 ui.close();
                             }
@@ -318,14 +324,14 @@ impl Accounts {
                     }
                     add = ui
                         .add_sized([40.0, 32.0], egui::Button::new("+"))
-                        .on_hover_text("Link another account")
+                        .on_hover_text(tr("Link another account"))
                         .clicked();
                 });
                 ui.with_layout(egui::Layout::bottom_up(egui::Align::Center), |ui| {
                     ui.add_space(8.0);
                     hide = ui
                         .add_sized([40.0, 32.0], egui::Button::new("‹"))
-                        .on_hover_text("Hide the account rail")
+                        .on_hover_text(tr("Hide the account rail"))
                         .clicked();
                 });
             });
@@ -369,7 +375,7 @@ impl Accounts {
             .order(egui::Order::Foreground)
             .show(ctx, |ui| {
                 let button = egui::Button::new("›").min_size(egui::vec2(28.0, 32.0));
-                let response = ui.add(button).on_hover_text("Show the account rail");
+                let response = ui.add(button).on_hover_text(tr("Show the account rail"));
                 if unread {
                     ui.painter().circle_filled(
                         response.rect.right_top(),
@@ -399,24 +405,24 @@ impl Accounts {
         let mut save = false;
         let mut cancel = false;
         let mut pick = false;
-        egui::Window::new("Edit account")
+        egui::Window::new(tr("Edit account"))
             .id(egui::Id::new("zapzapfast-edit-account"))
             .collapsible(false)
             .resizable(false)
             .anchor(egui::Align2::CENTER_CENTER, egui::Vec2::ZERO)
             .open(&mut open)
             .show(ctx, |ui| {
-                ui.label("Name");
+                ui.label(tr("Name"));
                 let mut name = editing.look.name.clone().unwrap_or_default();
                 ui.add(egui::TextEdit::singleline(&mut name).hint_text(fallback.as_str()));
                 editing.look.name = Some(name.trim().to_owned()).filter(|n| !n.is_empty());
                 ui.add_space(6.0);
-                ui.label("Emoji (Win + . opens the emoji picker)");
+                ui.label(tr("Emoji (Win + . opens the emoji picker)"));
                 ui.add(egui::TextEdit::singleline(&mut editing.emoji).desired_width(80.0));
                 ui.add_space(6.0);
                 ui.horizontal(|ui| {
-                    pick = ui.button("Choose picture…").clicked();
-                    if editing.look.picture.is_some() && ui.button("Remove picture").clicked() {
+                    pick = ui.button(tr("Choose picture…")).clicked();
+                    if editing.look.picture.is_some() && ui.button(tr("Remove picture")).clicked() {
                         editing.look.picture = None;
                     }
                 });
@@ -428,20 +434,22 @@ impl Accounts {
                 {
                     ui.add(egui::Image::new(&texture).fit_to_exact_size(egui::vec2(40.0, 40.0)));
                 }
-                ui.small("A picture wins over an emoji; with neither, the name's initial shows.");
+                ui.small(tr(
+                    "A picture wins over an emoji; with neither, the name's initial shows.",
+                ));
                 if let Some(error) = &editing.error {
                     ui.colored_label(ui.visuals().error_fg_color, error);
                 }
                 ui.add_space(8.0);
                 ui.horizontal(|ui| {
-                    save = ui.button("Save").clicked();
-                    cancel = ui.button("Cancel").clicked();
+                    save = ui.button(tr("Save")).clicked();
+                    cancel = ui.button(tr("Cancel")).clicked();
                 });
             });
         if pick {
             let chosen = rfd::FileDialog::new()
-                .set_title("Choose a picture for this account")
-                .add_filter("Images", &["png", "jpg", "jpeg", "webp", "gif"])
+                .set_title(tr("Choose a picture for this account"))
+                .add_filter(tr("Images"), &["png", "jpg", "jpeg", "webp", "gif"])
                 .pick_file();
             if let Some(path) = chosen {
                 match self.rail.import_picture(&key, &path) {
@@ -449,7 +457,9 @@ impl Accounts {
                         editing.look.picture = Some(file);
                         editing.error = None;
                     }
-                    Err(error) => editing.error = Some(format!("could not read it: {error}")),
+                    Err(error) => {
+                        editing.error = Some(format!("{} {error}", tr("could not read it:")));
+                    }
                 }
             }
         }
@@ -461,7 +471,7 @@ impl Accounts {
             return;
         }
         if !editing.emoji.trim().is_empty() && super::rail::emoji_of(&editing.emoji).is_none() {
-            editing.error = Some("that is not an emoji".to_owned());
+            editing.error = Some(tr("that is not an emoji").to_owned());
             self.editing = Some(editing);
             return;
         }
@@ -477,14 +487,14 @@ impl Accounts {
         let mut open = true;
         let mut confirm = false;
         let mut cancel = false;
-        egui::Window::new("Link another account")
+        egui::Window::new(tr("Link another account"))
             .id(egui::Id::new("zapzapfast-link-account"))
             .collapsible(false)
             .resizable(false)
             .anchor(egui::Align2::CENTER_CENTER, egui::Vec2::ZERO)
             .open(&mut open)
             .show(ctx, |ui| {
-                ui.label("Name this account. It keeps its own chats and settings.");
+                ui.label(tr("Name this account. It keeps its own chats and settings."));
                 ui.add_space(6.0);
                 let field = ui.text_edit_singleline(&mut name);
                 field.request_focus();
@@ -494,9 +504,9 @@ impl Accounts {
                 }
                 ui.add_space(8.0);
                 ui.horizontal(|ui| {
-                    confirm = ui.button("Link").clicked()
+                    confirm = ui.button(tr("Link")).clicked()
                         || (field.lost_focus() && ui.input(|i| i.key_pressed(egui::Key::Enter)));
-                    cancel = ui.button("Cancel").clicked();
+                    cancel = ui.button(tr("Cancel")).clicked();
                 });
             });
         if !open || cancel {
@@ -612,7 +622,7 @@ fn default_label(account: &Account) -> String {
         .me_name
         .clone()
         .or_else(|| account.profile.clone())
-        .unwrap_or_else(|| "Main account".to_owned())
+        .unwrap_or_else(|| tr("Main account").to_owned())
 }
 
 #[cfg(test)]

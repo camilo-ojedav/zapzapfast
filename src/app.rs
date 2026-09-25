@@ -579,6 +579,7 @@ impl App {
             });
         let open_chat = settings.last_chat.clone();
         let locale = crate::i18n::resolve(settings.interface_language);
+        crate::fork::i18n::show(locale);
         let mut app = Self {
             dirs,
             settings,
@@ -1137,7 +1138,7 @@ impl App {
     /// message-provided fallback. Our own id becomes "You".
     pub fn display_name_or(&self, id: &str, hint: Option<&str>) -> String {
         if self.me.as_deref() == Some(id) {
-            return "You".to_owned();
+            return crate::fork::i18n::tr("You").to_owned();
         }
         self.person_name(id, hint)
     }
@@ -1149,7 +1150,7 @@ impl App {
                 .me_name
                 .clone()
                 .filter(|name| !name.is_empty())
-                .unwrap_or_else(|| "You".to_owned());
+                .unwrap_or_else(|| crate::fork::i18n::tr("You").to_owned());
         }
         self.person_name(id, None)
     }
@@ -1161,7 +1162,7 @@ impl App {
         {
             let participants = self.participant_names(chat);
             return if participants.is_empty() {
-                "Group".to_owned()
+                crate::fork::i18n::tr("Group").to_owned()
             } else {
                 participants
             };
@@ -1237,7 +1238,7 @@ impl App {
         }
         match crate::model::phone_of(id) {
             Some(digits) => crate::util::phone(digits),
-            None => "Unknown".to_owned(),
+            None => crate::fork::i18n::tr("Unknown").to_owned(),
         }
     }
 
@@ -1312,7 +1313,7 @@ impl App {
             .filter(|id| Some(id.as_str()) != me)
         {
             let name = self.display_name(id);
-            if name.starts_with('+') || name == "Unknown" {
+            if name.starts_with('+') || name == crate::fork::i18n::tr("Unknown") {
                 numbers.push((id.clone(), name));
             } else {
                 named.push((id.clone(), name));
@@ -1324,7 +1325,7 @@ impl App {
         if let Some(me) = me
             && chat.participants.iter().any(|id| id == me)
         {
-            named.push((me.to_owned(), "You".to_owned()));
+            named.push((me.to_owned(), crate::fork::i18n::tr("You").to_owned()));
         }
         named
     }
@@ -1368,7 +1369,7 @@ impl App {
             .filter(|id| Some(id.as_str()) != me && seen.insert(id.as_str()))
         {
             let name = self.display_name(id);
-            if name.starts_with('+') || name == "Unknown" {
+            if name.starts_with('+') || name == crate::fork::i18n::tr("Unknown") {
                 numbers.push(name);
             } else {
                 let name = name.trim_start_matches('~');
@@ -1396,7 +1397,7 @@ impl App {
         numbers.sort();
         counted.extend(numbers);
         if chat.participants.iter().any(|id| Some(id.as_str()) == me) {
-            counted.push("You".to_owned());
+            counted.push(crate::fork::i18n::tr("You").to_owned());
         }
         counted.join(", ")
     }
@@ -2529,7 +2530,7 @@ impl App {
                 }
                 // Show expired-file failures in the bubble, not as a toast.
                 let notice = if error.contains("403") || error.contains("404") {
-                    "No longer available on WhatsApp's servers".to_owned()
+                    crate::fork::i18n::tr("No longer available on WhatsApp's servers").to_owned()
                 } else {
                     error
                 };
@@ -3135,7 +3136,7 @@ impl App {
                         self.apply(
                             Action::StartChat {
                                 id,
-                                name: "You".to_owned(),
+                                name: crate::fork::i18n::tr("You").to_owned(),
                             },
                             ctx,
                         );
@@ -3281,7 +3282,7 @@ impl App {
                 };
                 if !media.is_within_download_limit() {
                     media.state = MediaState::Failed(
-                        "This attachment is larger than the 64 MiB download limit".into(),
+                        crate::fork::i18n::tr("This attachment is larger than the 64 MiB download limit").into(),
                     );
                     return;
                 }
@@ -4439,7 +4440,7 @@ impl App {
 
     pub fn toast(&mut self, message: impl Into<String>) {
         self.toasts.push(Toast {
-            message: message.into(),
+            message: crate::fork::i18n::tr_string(message.into()),
             kind: ToastKind::Info,
             created: Instant::now(),
         });
@@ -4461,7 +4462,7 @@ impl App {
     }
 
     pub fn toast_error(&mut self, message: impl Into<String>) {
-        let message = message.into();
+        let message = crate::fork::i18n::tr_string(message.into());
         log::warn!("an operation failed; details are shown in the window");
         // Errors stay until dismissed: a repeat moves to the end instead of
         // stacking, and only the newest few are kept.

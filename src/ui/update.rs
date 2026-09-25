@@ -26,7 +26,7 @@ pub fn show(app: &mut App, ctx: &egui::Context) {
             spread: 0,
             color: palette.shadow,
         });
-    egui::Window::new("Update ZapFast")
+    egui::Window::new(crate::fork::i18n::tr("Update ZapFast"))
         .id(egui::Id::new("zapfast-update"))
         .title_bar(false)
         .resizable(false)
@@ -101,7 +101,7 @@ pub fn show(app: &mut App, ctx: &egui::Context) {
                     ui.add(
                         egui::Label::new(
                             RichText::new(
-                                "Finish any unsent messages or recordings before restarting. ZapFast will briefly disconnect, then reconnect automatically.",
+                                crate::fork::i18n::tr("Finish any unsent messages or recordings before restarting. ZapFast will briefly disconnect, then reconnect automatically."),
                             )
                             .font(theme::regular(14.0))
                             .color(palette.secondary),
@@ -157,7 +157,7 @@ pub fn show(app: &mut App, ctx: &egui::Context) {
                     }
                     ui.add_space(8.0);
                     ui.add(egui::Hyperlink::from_label_and_url(
-                        RichText::new(release_link)
+                        RichText::new(crate::fork::i18n::tr(release_link))
                             .font(theme::medium(13.0))
                             .color(palette.secondary),
                         &release.url,
@@ -171,6 +171,7 @@ pub fn show(app: &mut App, ctx: &egui::Context) {
 }
 
 fn message(ui: &mut egui::Ui, text: &str, color: egui::Color32) {
+    let text = &crate::fork::i18n::tr_string(text.to_owned());
     let line = super::widgets::line(
         ui,
         text,

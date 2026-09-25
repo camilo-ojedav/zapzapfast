@@ -7,6 +7,7 @@
 //! every hook, and `scripts/fork-check.sh` verifies them after a rebase.
 
 pub mod accounts;
+pub mod i18n;
 pub mod profiles;
 pub mod rail;
 

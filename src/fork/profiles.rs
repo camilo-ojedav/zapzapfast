@@ -25,9 +25,10 @@ pub fn validate(name: &str) -> Result<String, String> {
     if plain {
         Ok(name.to_owned())
     } else {
-        Err(format!(
-            "a profile name uses lowercase letters, digits and inner dashes; `{name}` does not"
-        ))
+        Err(crate::fork::i18n::tr(
+            "a profile name uses lowercase letters, digits and inner dashes; `{}` does not",
+        )
+        .replace("{}", name))
     }
 }
 
